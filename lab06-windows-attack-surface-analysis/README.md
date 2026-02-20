@@ -60,8 +60,7 @@ lab06-windows-attack-surface-analysis/
 │   ├── service_enum.py
 │   ├── attack_surface_analyzer.py
 │   ├── vulnerability_scanner.py
-│   ├── generate_report.py
-│   └── findings.md
+│   └── generate_report.py
 │
 ├── artifacts/
 │   ├── attack_surface_report.json

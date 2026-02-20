@@ -1,7 +1,7 @@
 # 🧪 Lab 7: Trace Product Network Activity Using ProcDOT & Wireshark
 
-**Environment:** Ubuntu 24.04.1 LTS (Cloud Lab Environment)  
-**User:** `toor`  
+> Environment: Ubuntu 24.04.1 LTS (Cloud Lab Environment)  
+> User: `toor`  
 
 ---
 

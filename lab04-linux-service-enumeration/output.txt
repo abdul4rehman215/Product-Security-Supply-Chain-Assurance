@@ -1,0 +1,367 @@
+==========================================================
+Lab 4: Linux Service Enumeration with nmap & netstat
+Output Log
+==========================================================
+
+
+==============================
+Task 1.1 — nmap Verification
+==============================
+$ which nmap
+/usr/bin/nmap
+
+$ sudo apt update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+
+$ sudo apt install nmap -y
+nmap is already the newest version (7.94+dfsg-3ubuntu5).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+$ nmap --version
+Nmap version 7.94 ( https://nmap.org )
+Platform: x86_64-pc-linux-gnu
+Compiled with: liblua-5.4.6 openssl-3.0.13 libssh2-1.11.0 libz-1.3.1 libpcre2-8.39
+Available nsock engines: epoll poll select
+
+
+==============================
+Task 1.2 — Port Scanning
+==============================
+
+$ nmap localhost
+Starting Nmap 7.94 ( https://nmap.org ) at 2026-02-20 12:47 UTC
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.000021s latency).
+Not shown: 999 closed tcp ports (reset)
+PORT   STATE SERVICE
+22/tcp open  ssh
+Nmap done: 1 IP address (1 host up) scanned in 0.22 seconds
+
+$ nmap -p 1-1000 localhost
+Starting Nmap 7.94 ( https://nmap.org ) at 2026-02-20 12:48 UTC
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.000019s latency).
+Not shown: 999 closed tcp ports (reset)
+PORT   STATE SERVICE
+22/tcp open  ssh
+Nmap done: 1 IP address (1 host up) scanned in 0.31 seconds
+
+$ nmap -p- localhost
+Starting Nmap 7.94 ( https://nmap.org ) at 2026-02-20 12:49 UTC
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.000020s latency).
+Not shown: 65534 closed tcp ports (reset)
+PORT   STATE SERVICE
+22/tcp open  ssh
+Nmap done: 1 IP address (1 host up) scanned in 6.11 seconds
+
+
+==============================
+Task 1.3 — Service Detection
+==============================
+
+$ nmap -sV localhost
+Starting Nmap 7.94 ( https://nmap.org ) at 2026-02-20 12:50 UTC
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.000022s latency).
+Not shown: 999 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 9.6p1 Ubuntu 3ubuntu13 (Ubuntu Linux; protocol 2.0)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+Nmap done: 1 IP address (1 host up) scanned in 0.55 seconds
+
+$ nmap -A localhost
+Starting Nmap 7.94 ( https://nmap.org ) at 2026-02-20 12:51 UTC
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.000025s latency).
+Not shown: 999 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 9.6p1 Ubuntu 3ubuntu13 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+|   256 4b:3f:9d:9a:1e:79:aa:42:66:af:31:35:4f:4f:ef:1d (ECDSA)
+|_  256 4c:98:10:6e:11:8a:65:4c:47:9b:54:3b:ba:ef:91:b8 (ED25519)
+Device type: general purpose
+Running: Linux 5.X
+OS CPE: cpe:/o:linux:linux_kernel:5
+OS details: Linux 5.4 - 5.15
+Network Distance: 0 hops
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+Nmap done: 1 IP address (1 host up) scanned in 4.11 seconds
+
+$ nmap -sC -sV localhost
+Starting Nmap 7.94 ( https://nmap.org ) at 2026-02-20 12:52 UTC
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.000023s latency).
+Not shown: 999 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 9.6p1 Ubuntu 3ubuntu13 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+|   256 4b:3f:9d:9a:1e:79:aa:42:66:af:31:35:4f:4f:ef:1d (ECDSA)
+|_  256 4c:98:10:6e:11:8a:65:4c:47:9b:54:3b:ba:ef:91:b8 (ED25519)
+Nmap done: 1 IP address (1 host up) scanned in 0.71 seconds
+
+
+==============================
+Task 2 — netstat Analysis
+==============================
+
+$ nano nmap_scan.sh
+(no terminal output)
+
+$ chmod +x nmap_scan.sh
+(no terminal output)
+
+$ ./nmap_scan.sh
+Starting comprehensive nmap scan of localhost
+Results will be saved in scan_results directory
+Performing basic port scan...
+Performing service version detection...
+Performing aggressive scan...
+Performing UDP scan...
+Performing script scan...
+Scan completed. Check scan_results for results.
+
+$ ls -la scan_results
+total 24
+drwxr-xr-x 2 toor toor 4096 Feb 20 12:54 .
+drwxr-xr-x 6 toor toor 4096 Feb 20 12:54 ..
+-rw-r--r-- 1 toor toor  429 Feb 20 12:54 aggressive_scan.txt
+-rw-r--r-- 1 toor toor  219 Feb 20 12:54 basic_scan.txt
+-rw-r--r-- 1 toor toor  317 Feb 20 12:54 script_scan.txt
+-rw-r--r-- 1 toor toor  272 Feb 20 12:54 service_scan.txt
+-rw-r--r-- 1 toor toor  421 Feb 20 12:54 udp_scan.txt
+
+
+==============================
+Task 3 — Python Automation
+==============================
+
+$ which netstat
+/usr/bin/netstat
+
+$ sudo apt install net-tools -y
+net-tools is already the newest version (2.10-0.1ubuntu4).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+$ netstat --version
+net-tools 2.10
+Fred Baumgarten, Alan Cox, Bernd Eckenfels, and others
++NEW_ADDRT +MII +SELINUX
+AF: (inet) (inet6) (ax25) (netrom) (rose) (ipx) (ddp) (x25)
+HW: (ether) (ppp) (slip) (tr) (ax25) (netrom) (rose) (x25) (ash)
+
+----------------------------------------
+Task 2.2 (listening ports)
+$ netstat -l
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 ip-172-31-10-241:ssh    0.0.0.0:*               LISTEN
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN
+Active UNIX domain sockets (only servers)
+Proto RefCnt Flags       Type       State         I-Node   Path
+unix  2      [ ACC ]     STREAM     LISTENING     49211    /run/systemd/private
+unix  2      [ ACC ]     STREAM     LISTENING     52194    /run/uuidd/request
+
+$ netstat -lp
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 ip-172-31-10-241:ssh    0.0.0.0:*               LISTEN      1026/sshd: /usr/sbi
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN      1026/sshd: /usr/sbi
+
+$ netstat -lt
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 ip-172-31-10-241:ssh    0.0.0.0:*               LISTEN
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN
+
+$ netstat -lu
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+
+$ netstat -ln
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN
+tcp6       0      0 :::22                   :::*                    LISTEN
+Active UNIX domain sockets (only servers)
+Proto RefCnt Flags       Type       State         I-Node   Path
+unix  2      [ ACC ]     STREAM     LISTENING     49211    /run/systemd/private
+unix  2      [ ACC ]     STREAM     LISTENING     52194    /run/uuidd/request
+
+----------------------------------------
+Task 2.3 (active connections)
+$ netstat -a
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 ip-172-31-10-241:ssh    0.0.0.0:*               LISTEN
+tcp        0      0 ip-172-31-10-241:ssh    117.203.11.74:51322     ESTABLISHED
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN
+Active UNIX domain sockets (servers and established)
+Proto RefCnt Flags       Type       State         I-Node   Path
+unix  2      [ ACC ]     STREAM     LISTENING     49211    /run/systemd/private
+unix  2      [ ACC ]     STREAM     CONNECTED     50129    /run/systemd/private
+unix  2      [ ACC ]     STREAM     LISTENING     52194    /run/uuidd/request
+
+$ netstat -at
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 ip-172-31-10-241:ssh    0.0.0.0:*               LISTEN
+tcp        0      0 ip-172-31-10-241:ssh    117.203.11.74:51322     ESTABLISHED
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN
+
+$ netstat -ap
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 ip-172-31-10-241:ssh    0.0.0.0:*               LISTEN      1026/sshd: /usr/sbi
+tcp        0      0 ip-172-31-10-241:ssh    117.203.11.74:51322     ESTABLISHED 12641/sshd: toor [p
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN      1026/sshd: /usr/sbi
+
+$ netstat -s
+Ip:
+    Forwarding: 2
+    164721 total packets received
+    0 forwarded
+    0 incoming packets discarded
+    164669 incoming packets delivered
+    158940 requests sent out
+Tcp:
+    521 active connection openings
+    9 passive connection openings
+    25 failed connection attempts
+    4 connection resets received
+    2 connections established
+Udp:
+    163 packets received
+    0 packets to unknown port received
+    0 packet receive errors
+    165 packets sent
+TcpExt:
+    12 resets received for embryonic SYN_RECV sockets
+
+$ netstat -r
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+default         ip-172-31-0-1   0.0.0.0         UG        0 0          0 ens5
+172.31.0.0      0.0.0.0         255.255.0.0     U         0 0          0 ens5
+
+----------------------------------------
+Task 2.4
+$ nano netstat_monitor.sh
+(no terminal output)
+
+$ chmod +x netstat_monitor.sh
+(no terminal output)
+
+$ ./netstat_monitor.sh
+Starting network connection analysis...
+Timestamp: Fri Feb 20 12:59:41 UTC 2026
+Analyzing listening ports...
+Analyzing active connections...
+Analyzing processes and ports...
+Analyzing network statistics...
+Gathering network statistics...
+Creating summary report...
+Analysis completed. Results saved in netstat_results/
+
+$ ls -la netstat_results | head
+total 32
+drwxr-xr-x 2 toor toor 4096 Feb 20 12:59 .
+drwxr-xr-x 8 toor toor 4096 Feb 20 12:59 ..
+-rw-r--r-- 1 toor toor 1498 Feb 20 12:59 active_connections_20260220_125941.txt
+-rw-r--r-- 1 toor toor  442 Feb 20 12:59 listening_ports_20260220_125941.txt
+-rw-r--r-- 1 toor toor 3581 Feb 20 12:59 network_stats_20260220_125941.txt
+-rw-r--r-- 1 toor toor  612 Feb 20 12:59 process_ports_20260220_125941.txt
+-rw-r--r-- 1 toor toor  483 Feb 20 12:59 summary_20260220_125941.txt
+
+----------------------------------------
+Task 3 (Python Automation)
+$ pip3 install python-nmap
+Successfully installed python-nmap-0.7.1
+
+$ python3 -c "import nmap; print('python-nmap installed successfully')"
+python-nmap installed successfully
+
+$ python3 service_enumeration.py
+Starting automated service enumeration...
+==================================================
+Starting nmap scan of localhost...
+Performing TCP scan...
+Performing service detection...
+Performing script scan...
+Performing netstat analysis...
+Parsing results...
+Reports generated:
+ JSON: enumeration_results/enumeration_report_20260220_130510.json
+ Text: enumeration_results/enumeration_report_20260220_130510.txt
+
+Enumeration completed successfully!
+Found 1 open ports
+Found 2 listening ports
+Found 1 active connections
+
+Service enumeration completed successfully!
+
+$ python3 advanced_nmap_scripts.py
+Running basic scan...
+Performing detailed service enumeration...
+Performing vulnerability scan...
+Performing stealth scan...
+Advanced scanning completed!
+
+$ ./master_enumeration.sh
+Starting Master Service Enumeration
+Target: localhost
+Output Directory: master_enumeration_20260220_130702
+==================================
+Phase 1: Basic nmap scanning...
+Phase 2: netstat analysis...
+Phase 3: Python automation...
+... (same enumeration output) ...
+Phase 4: Generating summary...
+Master enumeration completed!
+Results saved in: master_enumeration_20260220_130702
+Check master_summary.txt for overview
+
+$ cat master_enumeration_*/master_summary.txt
+Master Enumeration Summary
+=========================
+Date: Fri Feb 20 13:07:10 UTC 2026
+Target: localhost
+
+Open Ports (nmap):
+22/tcp open  ssh
+
+Listening Ports (netstat):
+0.0.0.0:22
+:::22
+
+Active Connections:
+1
+
+$ diff <(grep "open" */nmap_basic.txt | awk '{print $1}') <(grep "LISTEN" */netstat_listening.txt | awk '{print $4}' | cut -d: -f2 | sort -u)
+1c1
+< 22/tcp
+---
+> 22
+
+$ python3 analyze_services.py
+Analyzing: enumeration_results/enumeration_report_20260220_130510.json
+Identified Services:
+--------------------
+Port 22: SSH (ssh)
+
+Analyzing: enumeration_results/enumeration_report_20260220_130706.json
+Identified Services:
+--------------------
+Port 22: SSH (ssh)

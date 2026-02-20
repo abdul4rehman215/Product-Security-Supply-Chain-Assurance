@@ -7,13 +7,22 @@
 
 ## 🎯 Objectives
 
-By the end of this lab, you will be able to:
+By the end of this lab, I was able to:
 
 - Capture and analyze network traffic using **Wireshark / tshark**
 - Visualize network communication patterns and flows
 - Develop Python scripts to automate traffic capture and analysis
 - Identify suspicious network activities in product communications
 - Correlate process activities with network traffic for security analysis
+
+---
+
+## 📌 Prerequisites
+
+- Basic understanding of TCP/IP networking and protocols
+- Familiarity with Linux command line operations
+- Basic Python programming knowledge
+- Understanding of network security fundamentals
 
 ---
 

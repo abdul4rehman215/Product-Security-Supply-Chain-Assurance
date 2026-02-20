@@ -104,6 +104,21 @@ Service enumeration is often the **first step** in:
 
 ---
 
+## 📁 Generated Output Folders
+- `scan_results/` (from `nmap_scan.sh`)
+- `netstat_results/` (from `netstat_monitor.sh`)
+- `enumeration_results/` (from `service_enumeration.py`)
+- `master_enumeration_YYYYMMDD_HHMMSS/` (from `master_enumeration.sh`)
+
+---
+
+## 🧠 Notes
+- Some `netstat -lnp` output is limited without root.
+- UDP scanning requires sudo (`sudo nmap -sU ...`).
+- Python script indentation in the lab text was corrected so the script runs (logic unchanged).
+
+---
+
 ## ✅ Conclusion
 This lab demonstrated how to enumerate Linux services using both **active scanning (nmap)**
 and **local inspection (netstat)**, then automate the workflow using scripts.

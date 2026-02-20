@@ -1,0 +1,470 @@
+🧩 Task 1: Decompile APK Files with apktool
+==========================================
+
+Step 1.1: Setup Working Environment
+-----------------------------------
+
+toor@ip-172-31-10-214:~$ mkdir -p ~/android_analysis/{apktool_output,jadx_output,apkleaks_output,scripts}
+
+toor@ip-172-31-10-214:~$ cd ~/android_analysis
+
+toor@ip-172-31-10-214:~/android_analysis$ sudo apt update && sudo apt upgrade -y
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+
+toor@ip-172-31-10-214:~/android_analysis$ sudo apt install -y openjdk-11-jdk wget unzip zip jq aapt apktool
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+openjdk-11-jdk is already the newest version (11.0.23+9-1ubuntu1).
+wget is already the newest version.
+unzip is already the newest version.
+zip is already the newest version.
+jq is already the newest version.
+aapt is already the newest version.
+apktool is already the newest version.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+Verify installations
+--------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ java -version
+openjdk version "11.0.23" 2025-04-16
+OpenJDK Runtime Environment (build 11.0.23+9-Ubuntu-0ubuntu1)
+OpenJDK 64-Bit Server VM (build 11.0.23+9-Ubuntu-0ubuntu1, mixed mode)
+
+toor@ip-172-31-10-214:~/android_analysis$ apktool --version
+2.9.3
+
+toor@ip-172-31-10-214:~/android_analysis$ jadx --version
+1.5.0
+
+toor@ip-172-31-10-214:~/android_analysis$ python3 --version
+Python 3.12.3
+
+toor@ip-172-31-10-214:~/android_analysis$ pip3 --version
+pip 24.0 from /usr/lib/python3/dist-packages/pip (python 3.12)
+
+toor@ip-172-31-10-214:~/android_analysis$ aapt version
+Android Asset Packaging Tool, v0.2
+
+
+Step 1.2: Download and Analyze Sample APK
+-----------------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ wget -O sample_app.apk "https://github.com/OWASP/MSTG-Hacking-Playground/raw/master/Android/MSTGAndroid-Java-App/app/build/outputs/apk/debug/app-debug.apk"
+Resolving github.com... 140.82.121.4
+Connecting to github.com... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 3829112 (3.6M)
+Saving to: ‘sample_app.apk’
+
+sample_app.apk 100%[===================>]   3.65M  5.82MB/s    in 0.6s
+
+2026-02-20 11:27:14 (5.82 MB/s) - ‘sample_app.apk’ saved [3829112/3829112]
+
+Verify APK
+----------
+
+toor@ip-172-31-10-214:~/android_analysis$ file sample_app.apk
+sample_app.apk: Zip archive data, at least v2.0 to extract
+
+toor@ip-172-31-10-214:~/android_analysis$ ls -lh sample_app.apk
+-rw-r--r-- 1 toor toor 3.7M Feb 20 11:27 sample_app.apk
+
+
+Step 1.3: Decompile APK with apktool
+------------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ apktool d sample_app.apk -o apktool_output/sample_app
+I: Using Apktool 2.9.3
+I: Loading resource table...
+I: Decoding AndroidManifest.xml...
+I: Loading resource table from file: /home/toor/.local/share/apktool/framework/1.apk
+I: Decoding file-resources...
+I: Decoding values */* XMLs...
+I: Baksmaling classes.dex...
+I: Copying assets and libs...
+I: Copying unknown files...
+I: Copying original files...
+I: Finished.
+
+Explore structure
+-----------------
+
+toor@ip-172-31-10-214:~/android_analysis$ cd apktool_output/sample_app
+toor@ip-172-31-10-214:~/android_analysis/apktool_output/sample_app$ ls -la
+AndroidManifest.xml
+apktool.yml
+assets/
+lib/
+res/
+smali/
+unknown/
+
+View manifest
+-------------
+
+toor@ip-172-31-10-214:~/android_analysis/apktool_output/sample_app$ cat AndroidManifest.xml
+<manifest package="org.owasp.mstg.myapplication"
+    android:versionCode="1"
+    android:versionName="1.0">
+
+    <application
+        android:allowBackup="true"
+        android:debuggable="true"
+        android:usesCleartextTraffic="true">
+
+
+Step 1.4: Analyze Manifest for Security Issues
+----------------------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis/apktool_output/sample_app$ grep -E "permission" AndroidManifest.xml
+<uses-permission android:name="android.permission.INTERNET"/>
+
+toor@ip-172-31-10-214:~/android_analysis/apktool_output/sample_app$ grep "android:exported" AndroidManifest.xml
+android:exported="true"
+
+toor@ip-172-31-10-214:~/android_analysis/apktool_output/sample_app$ grep "debuggable" AndroidManifest.xml
+android:debuggable="true"
+
+toor@ip-172-31-10-214:~/android_analysis/apktool_output/sample_app$ find res/values* -name "*.xml" -exec grep -l "password\|key\|token" {} \;
+res/values/strings.xml
+
+
+Step 1.5: Test the APK Decompiler Script
+----------------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ chmod +x scripts/apk_decompiler.py
+
+toor@ip-172-31-10-214:~/android_analysis$ python3 scripts/apk_decompiler.py --help
+usage: apk_decompiler.py [-h] [-o OUTPUT] apk_path
+
+APK Decompiler and Analyzer
+
+positional arguments:
+  apk_path               Path to APK file
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        Output directory
+
+(Optional quick test run)
+------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ python3 scripts/apk_decompiler.py sample_app.apk -o apktool_output/script_run
+[+] Running: apktool d -f sample_app.apk -o apktool_output/script_run/apktool_decompiled
+I: Using Apktool 2.9.3
+I: Loading resource table...
+I: Decoding AndroidManifest.xml...
+I: Loading resource table from file: /home/toor/.local/share/apktool/framework/1.apk
+I: Decoding file-resources...
+I: Decoding values */* XMLs...
+I: Baksmaling classes.dex...
+I: Copying assets and libs...
+I: Copying unknown files...
+I: Copying original files...
+I: Finished.
+[+] Decompilation successful: apktool_output/script_run/apktool_decompiled
+
+========== Manifest Analysis ==========
+[+] No listed dangerous permissions found (based on simple string match).
+[!] Found android:exported attributes. Review exported components carefully.
+[!] Debuggable mode appears ENABLED in manifest.
+[!] allowBackup is enabled (android:allowBackup="true"). Consider disabling for sensitive apps.
+
+========== Hardcoded String Search (resources) ==========
+[!] Potential sensitive patterns found in these resource files:
+    - apktool_output/script_run/apktool_decompiled/res/values/strings.xml
+
+[+] Done.
+
+
+
+🧩 Task 2: Analyze Source Code with JADX
+=======================================
+
+Step 2.1: Decompile APK to Java Source
+--------------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ cd ~/android_analysis
+
+toor@ip-172-31-10-214:~/android_analysis$ jadx -d jadx_output/sample_app_java sample_app.apk
+INFO  - loading ...
+INFO  - processing ...
+INFO  - saving resources ...
+INFO  - done
+
+Navigate to decompiled code
+---------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ cd jadx_output/sample_app_java
+
+toor@ip-172-31-10-214:~/android_analysis/jadx_output/sample_app_java$ find . -name "*.java" | head -20
+./sources/org/owasp/mstg/myapplication/MainActivity.java
+./sources/org/owasp/mstg/myapplication/BuildConfig.java
+./sources/org/owasp/mstg/myapplication/crypto/CryptoHelper.java
+./sources/org/owasp/mstg/myapplication/storage/Prefs.java
+./sources/org/owasp/mstg/myapplication/network/ApiClient.java
+./sources/org/owasp/mstg/myapplication/web/WebViewActivity.java
+./sources/androidx/appcompat/app/AppCompatActivity.java
+./sources/androidx/core/app/ActivityCompat.java
+./sources/androidx/core/content/ContextCompat.java
+./sources/com/google/android/material/button/MaterialButton.java
+./sources/com/google/android/material/textview/MaterialTextView.java
+./sources/kotlin/jvm/internal/Intrinsics.java
+./sources/kotlin/Metadata.java
+./sources/kotlin/collections/CollectionsKt.java
+./sources/kotlin/text/StringsKt.java
+./sources/okhttp3/OkHttpClient.java
+./sources/okhttp3/Request.java
+./sources/okhttp3/Response.java
+./sources/retrofit2/Retrofit.java
+./sources/retrofit2/http/GET.java
+
+
+Step 2.2: Search for Security Vulnerabilities (manual greps)
+------------------------------------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis/jadx_output/sample_app_java$ grep -r -i "password\|secret\|key\|token" --include="*.java" . | head -10
+./sources/org/owasp/mstg/myapplication/network/ApiClient.java:    private static final String API_KEY = "AIzaSyDUMMYKEY0123456789abcdefghi_dummy";
+./sources/org/owasp/mstg/myapplication/storage/Prefs.java:        editor.putString("token", "debug-token-12345");
+./sources/org/owasp/mstg/myapplication/MainActivity.java:        String password = "P@ssw0rd123";
+./sources/org/owasp/mstg/myapplication/crypto/CryptoHelper.java:    private static final String secret = "hardcoded_secret_value";
+
+toor@ip-172-31-10-214:~/android_analysis/jadx_output/sample_app_java$ grep -r "rawQuery\|execSQL" --include="*.java" .
+./sources/org/owasp/mstg/myapplication/storage/Prefs.java:            db.execSQL("SELECT * FROM users WHERE name = '" + user + "'");
+./sources/org/owasp/mstg/myapplication/storage/Prefs.java:            cursor = db.rawQuery("SELECT * FROM users WHERE id=" + userId, null);
+
+toor@ip-172-31-10-214:~/android_analysis/jadx_output/sample_app_java$ grep -r "http://" --include="*.java" .
+./sources/org/owasp/mstg/myapplication/network/ApiClient.java:    private static final String BASE_URL = "http://demo.example.com/api/";
+
+toor@ip-172-31-10-214:~/android_analysis/jadx_output/sample_app_java$ grep -r -i "cipher\|encrypt\|decrypt" --include="*.java" .
+./sources/org/owasp/mstg/myapplication/crypto/CryptoHelper.java:import javax.crypto.Cipher;
+./sources/org/owasp/mstg/myapplication/crypto/CryptoHelper.java:    Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+./sources/org/owasp/mstg/myapplication/crypto/CryptoHelper.java:    public String encrypt(String data) {
+./sources/org/owasp/mstg/myapplication/crypto/CryptoHelper.java:    public String decrypt(String enc) {
+
+toor@ip-172-31-10-214:~/android_analysis/jadx_output/sample_app_java$ grep -r "setJavaScriptEnabled\|addJavascriptInterface" --include="*.java" .
+./sources/org/owasp/mstg/myapplication/web/WebViewActivity.java:        webSettings.setJavaScriptEnabled(true);
+./sources/org/owasp/mstg/myapplication/web/WebViewActivity.java:        webView.addJavascriptInterface(new JsBridge(this), "AndroidBridge");
+
+
+Step 2.3: Run Java Analyzer Script
+----------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ chmod +x scripts/java_analyzer.py
+
+toor@ip-172-31-10-214:~/android_analysis$ python3 scripts/java_analyzer.py jadx_output/sample_app_java
+[+] Java analysis complete
+[+] Report saved to: /home/toor/android_analysis/java_analysis_report.json
+[+] Total findings: 9
+[+] Severity counts: {'HIGH': 4, 'MEDIUM': 5, 'LOW': 0}
+
+(Optional check of generated JSON report)
+-----------------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ jq '.severity_counts, .findings[0:3]' java_analysis_report.json
+{
+  "HIGH": 4,
+  "MEDIUM": 5,
+  "LOW": 0
+}
+[
+  {
+    "severity": "HIGH",
+    "category": "Hardcoded API Key",
+    "file": "jadx_output/sample_app_java/sources/org/owasp/mstg/myapplication/network/ApiClient.java",
+    "detail": "Potential hardcoded secret found",
+    "evidence": "API_KEY = \"AIzaSyDUMMYKEY0123456789abcdefghi_dummy\""
+  },
+  {
+    "severity": "HIGH",
+    "category": "Hardcoded Token/Secret",
+    "file": "jadx_output/sample_app_java/sources/org/owasp/mstg/myapplication/crypto/CryptoHelper.java",
+    "detail": "Potential hardcoded secret found",
+    "evidence": "secret = \"hardcoded_secret_value\""
+  },
+  {
+    "severity": "MEDIUM",
+    "category": "Insecure HTTP Connection",
+    "file": "jadx_output/sample_app_java/sources/org/owasp/mstg/myapplication/network/ApiClient.java",
+    "detail": "Found hardcoded http:// URL (use https://)",
+    "evidence": "http://demo.example.com/api/"
+  }
+]
+
+
+
+🧩 Task 3: Extract Secrets with apkleaks
+=======================================
+
+Step 3.1: Install and Verify apkleaks
+-------------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ pip3 install --upgrade apkleaks
+Collecting apkleaks
+  Downloading apkleaks-2.6.3-py3-none-any.whl (46 kB)
+Collecting androguard>=3.4.0
+  Downloading androguard-4.1.2-py3-none-any.whl (1.0 MB)
+Collecting rich
+  Downloading rich-13.9.4-py3-none-any.whl (242 kB)
+Collecting click
+  Downloading click-8.1.7-py3-none-any.whl (97 kB)
+Collecting tqdm
+  Downloading tqdm-4.66.5-py3-none-any.whl (78 kB)
+Collecting colorama
+  Using cached colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+Collecting pycryptodome
+  Downloading pycryptodome-3.20.0-cp35-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+Collecting lxml
+  Using cached lxml-5.3.0-cp312-cp312-manylinux_2_28_x86_64.whl (5.1 MB)
+Collecting asn1crypto
+  Downloading asn1crypto-1.5.1-py2.py3-none-any.whl (105 kB)
+Collecting pyyaml
+  Using cached PyYAML-6.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (705 kB)
+Collecting pygments<3.0.0,>=2.13.0
+  Downloading pygments-2.18.0-py3-none-any.whl (1.2 MB)
+Collecting markdown-it-py>=2.2.0
+  Downloading markdown_it_py-3.0.0-py3-none-any.whl (87 kB)
+Collecting mdurl~=0.1
+  Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Installing collected packages: asn1crypto, tqdm, pyyaml, pycryptodome, pygments, mdurl, click, markdown-it-py, rich, androguard, apkleaks
+Successfully installed androguard-4.1.2 apkleaks-2.6.3 asn1crypto-1.5.1 click-8.1.7 markdown-it-py-3.0.0 mdurl-0.1.2 pycryptodome-3.20.0 pygments-2.18.0 pyyaml-6.0.2 rich-13.9.4 tqdm-4.66.5
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead.
+
+toor@ip-172-31-10-214:~/android_analysis$ apkleaks --version
+apkleaks 2.6.3
+
+
+Step 3.2: Run Basic Secret Extraction
+------------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ cd ~/android_analysis
+
+toor@ip-172-31-10-214:~/android_analysis$ apkleaks -f sample_app.apk -o apkleaks_output/secrets_report.txt
+ _           _      _            _
+| |__   __ _| | ___| | ___  __ _| | _____
+| '_ \ / _` | |/ __| |/ _ \/ _` | |/ / __|
+| |_) | (_| | | (__| |  __/ (_| |   <\__ \
+|_.__/ \__,_|_|\___|_|\___|\__,_|_|\_\___/
+
+[+] Loading APK: sample_app.apk
+[+] Extracting DEX and resources...
+[+] Running default pattern set...
+[+] Report written: apkleaks_output/secrets_report.txt
+
+toor@ip-172-31-10-214:~/android_analysis$ cat apkleaks_output/secrets_report.txt
+APKLeaks Report
+===============
+
+[Google API Key]
+- Match: AIzaSyDUMMYKEY0123456789abcdefghi_dummy
+  File: classes.dex
+
+[Token]
+- Match: debug-token-12345
+  File: classes.dex
+
+[Hardcoded Password]
+- Match: P@ssw0rd123
+  File: classes.dex
+
+[Secret]
+- Match: hardcoded_secret_value
+  File: classes.dex
+
+[Info]
+- Total matches: 4
+
+toor@ip-172-31-10-214:~/android_analysis$ apkleaks -f sample_app.apk -o apkleaks_output/secrets_report.json --json
+[+] Loading APK: sample_app.apk
+[+] Extracting DEX and resources...
+[+] Running default pattern set...
+[+] JSON report written: apkleaks_output/secrets_report.json
+
+
+Step 3.3: Custom Patterns Scan
+------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ apkleaks -f sample_app.apk -o apkleaks_output/detailed_secrets.json --json -p apkleaks_output/custom_patterns.json
+[+] Loading APK: sample_app.apk
+[+] Extracting DEX and resources...
+[+] Loaded custom pattern file: apkleaks_output/custom_patterns.json
+[+] Scanning with custom patterns...
+[+] JSON report written: apkleaks_output/detailed_secrets.json
+
+toor@ip-172-31-10-214:~/android_analysis$ jq '.[0:2]' apkleaks_output/detailed_secrets.json
+[
+  {
+    "name": "Google API Key",
+    "match": "AIzaSyDUMMYKEY0123456789abcdefghi_dummy",
+    "file": "classes.dex"
+  },
+  {
+    "name": "JWT Token",
+    "match": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.signature",
+    "file": "classes.dex"
+  }
+]
+
+
+
+🤖 Task 4: Automate Comprehensive Analysis
+=========================================
+
+Step 4.3: Run Complete Analysis Pipeline
+----------------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ cd ~/android_analysis
+
+toor@ip-172-31-10-214:~/android_analysis$ python3 scripts/comprehensive_analyzer.py sample_app.apk -o final_analysis
+[+] Starting comprehensive analysis for: sample_app.apk
+[+] Comprehensive analysis saved to: final_analysis/comprehensive_analysis.json
+[+] Summary:
+{
+  "total_issues": 6,
+  "critical_findings": [
+    "Debug mode enabled: android:debuggable=\"true\"",
+    "Cleartext traffic allowed: android:usesCleartextTraffic=\"true\"",
+    "Potential secrets detected by apkleaks: 4"
+  ],
+  "recommendations": [
+    "Disable debug mode before production release (android:debuggable should be false).",
+    "Disable android:allowBackup for sensitive apps or implement secure backup policies.",
+    "Disallow cleartext traffic; enforce HTTPS and network security config.",
+    "Remove hardcoded secrets; rotate any exposed keys/tokens and use secure storage."
+  ],
+  "generated_at": "2026-02-20T06:10:44.112Z"
+}
+
+toor@ip-172-31-10-214:~/android_analysis$ python3 scripts/generate_report.py final_analysis/comprehensive_analysis.json final_analysis/report.html
+[+] HTML report generated: final_analysis/report.html
+
+toor@ip-172-31-10-214:~/android_analysis$ cat final_analysis/comprehensive_analysis.json | jq '.summary'
+{
+  "total_issues": 6,
+  "critical_findings": [
+    "Debug mode enabled: android:debuggable=\"true\"",
+    "Cleartext traffic allowed: android:usesCleartextTraffic=\"true\"",
+    "Potential secrets detected by apkleaks: 4"
+  ],
+  "recommendations": [
+    "Disable debug mode before production release (android:debuggable should be false).",
+    "Disable android:allowBackup for sensitive apps or implement secure backup policies.",
+    "Disallow cleartext traffic; enforce HTTPS and network security config.",
+    "Remove hardcoded secrets; rotate any exposed keys/tokens and use secure storage."
+  ],
+  "generated_at": "2026-02-20T06:10:44.112Z"
+}
+
+
+Step 4.4: Batch Script Permissions
+---------------------------------
+
+toor@ip-172-31-10-214:~/android_analysis$ chmod +x batch_analyze.sh

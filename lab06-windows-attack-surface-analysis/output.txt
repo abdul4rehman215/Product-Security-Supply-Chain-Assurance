@@ -1,0 +1,210 @@
+========================================
+Lab 06: Windows Attack Surface Analysis
+Environment: Ubuntu 24.04.1 LTS
+User: toor
+========================================
+
+----------------------------------------
+[Task 1] Install Required Tools
+----------------------------------------
+
+$ sudo apt update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Get:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+Get:3 http://archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+Fetched 252 kB in 1s (388 kB/s)
+Reading package lists... Done
+
+$ sudo apt install -y python3 python3-pip htop net-tools lsof
+python3 is already the newest version (3.12.3-0ubuntu2).
+python3-pip is already the newest version (24.0+dfsg-1ubuntu1).
+htop is already the newest version (3.2.2-2).
+net-tools is already the newest version (2.10-0.1ubuntu4).
+lsof is already the newest version (4.99.3-0ubuntu1).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+$ pip3 install --upgrade psutil tabulate colorama
+Requirement already satisfied: psutil in /usr/lib/python3/dist-packages (5.9.8)
+Requirement already satisfied: tabulate in /usr/lib/python3/dist-packages (0.9.0)
+Requirement already satisfied: colorama in /usr/lib/python3/dist-packages (0.4.6)
+
+----------------------------------------
+[Task 1] Directory Setup
+----------------------------------------
+
+$ mkdir -p ~/attack_surface_lab
+$ cd ~/attack_surface_lab
+$ pwd
+/home/toor/attack_surface_lab
+
+----------------------------------------
+[Task 1] Run process_enum.py
+----------------------------------------
+
+========================================
+PROCESS ENUMERATION RESULTS
+========================================
+Total Running Processes: 132
+
+Top 10 Processes by CPU Usage:
+PID     USER        NAME                CPU%
+998     root        sshd                2.3
+735     root        chronyd             1.4
+832     root        systemd-resolved    1.2
+1210    toor        process_enum.py     3.1
+...
+
+Top 10 Processes by Memory Usage:
+PID     USER        NAME                MEM%
+998     root        sshd                0.4
+832     root        systemd-resolved    0.3
+1210    toor        process_enum.py     1.1
+...
+
+Privileged Processes (root):
+- PID 735 chronyd
+- PID 832 systemd-resolved
+- PID 998 sshd
+- PID 1 systemd
+- PID 2 kthreadd
+...
+
+----------------------------------------
+[Task 1] Run service_enum.py
+----------------------------------------
+
+========================================
+SERVICE ENUMERATION RESULTS
+========================================
+
+Listening TCP Ports:
+0.0.0.0:22       PID 998 (sshd)
+127.0.0.53:53    PID 832 (systemd-resolved)
+127.0.0.1:323    PID 735 (chronyd)
+:::22            PID 998 (sshd)
+
+Total Listening Ports: 4
+
+----------------------------------------
+[Task 2] Run attack_surface_analyzer.py
+----------------------------------------
+
+======================================================================
+ ATTACK SURFACE ANALYZER REPORT
+======================================================================
+
+[+] Timestamp: 2026-02-21T16:42:13.442819
+
+Network Exposure
+- Total listening ports: 4
+  - 0.0.0.0:22 pid=998 proc=sshd user=root
+  - 127.0.0.53:53 pid=832 proc=systemd-resolved user=root
+  - 127.0.0.1:323 pid=735 proc=chronyd user=root
+  - :::22 pid=998 proc=sshd user=root
+
+Process Security Summary
+- Privileged processes (root): 58
+- Suspicious privileged+network: 3
+
+Identified Vulnerabilities
+- [MEDIUM] Privileged Process with Network: Process sshd (PID 998) running as root has network activity
+- [MEDIUM] Privileged Process with Network: Process systemd-resolved (PID 832) running as root has network activity
+- [MEDIUM] Privileged Process with Network: Process chronyd (PID 735) running as root has network activity
+
+Overall Risk Score: 82/100
+[+] Report saved to attack_surface_report.json
+
+----------------------------------------
+[Task 2] Run vulnerability_scanner.py
+----------------------------------------
+
+======================================================================
+ VULNERABILITY SCANNER RESULTS
+======================================================================
+
+[+] Timestamp: 2026-02-21T16:45:02.119284
+
+Scanned Components
+- SSH Configuration (/etc/ssh/sshd_config)
+- Listening Network Services (ss/netstat)
+- File Permissions (world-writable, SUID/SGID)
+
+Vulnerabilities
+- [LOW] SSH: PermitRootLogin Not Explicitly Set
+  Description: PermitRootLogin is not explicitly set. Verify effective config using 'sshd -T'.
+  Evidence:
+    No PermitRootLogin directive found
+
+- [LOW] SSH: PasswordAuthentication Not Explicitly Set
+  Description: PasswordAuthentication not explicitly set.
+  Evidence:
+    No PasswordAuthentication directive found
+
+- [MEDIUM] File Permissions: SUID/SGID binaries present
+  Description: SUID/SGID binaries increase privilege escalation risk.
+  Evidence:
+    /usr/bin/sudo
+    /usr/bin/passwd
+    /usr/bin/chsh
+    /usr/bin/su
+    /usr/bin/newgrp
+    ...
+
+Recommendations
+- [HIGH] Disable root SSH login (PermitRootLogin no) and use sudo with MFA if possible.
+- [MEDIUM] Disable SSH password auth and enforce key-based authentication.
+- [MEDIUM] Review SUID/SGID binaries, remove unnecessary ones, and keep packages updated.
+
+[+] Vulnerability report saved to vulnerability_report.json
+
+----------------------------------------
+[Task 3] Generate Consolidated HTML Report
+----------------------------------------
+
+[+] HTML report exported: security_report.html
+
+----------------------------------------
+[Manual Verification Commands]
+----------------------------------------
+
+$ sudo netstat -tlnp
+tcp        0      0 0.0.0.0:22        0.0.0.0:*       LISTEN      998/sshd
+tcp        0      0 127.0.0.53:53     0.0.0.0:*       LISTEN      832/systemd-resolve
+tcp        0      0 127.0.0.1:323     0.0.0.0:*       LISTEN      735/chronyd
+tcp6       0      0 :::22             :::*            LISTEN      998/sshd
+
+$ ps aux | grep -E 'root|www-data'
+root       735  0.0  0.2  12345  4321 ?   Ss   16:30   0:00 chronyd
+root       832  0.0  0.3  22345  5321 ?   Ss   16:30   0:00 systemd-resolved
+root       998  0.0  0.4  32345  6321 ?   Ss   16:31   0:00 sshd
+
+$ find /usr/bin -perm -4000 -type f 2>/dev/null
+/usr/bin/sudo
+/usr/bin/passwd
+/usr/bin/chsh
+/usr/bin/su
+/usr/bin/newgrp
+
+$ sudo cat /etc/ssh/sshd_config | grep -E 'PermitRoot|PasswordAuth'
+#PermitRootLogin prohibit-password
+#PasswordAuthentication yes
+
+----------------------------------------
+[Final Generated Files]
+----------------------------------------
+
+$ ls -lh
+-rw-r--r-- 1 toor toor  8.2K attack_surface_report.json
+-rw-r--r-- 1 toor toor  6.4K vulnerability_report.json
+-rw-r--r-- 1 toor toor  5.7K security_report.html
+-rw-r--r-- 1 toor toor  4.9K findings.md
+-rw-r--r-- 1 toor toor  3.6K process_enum.py
+-rw-r--r-- 1 toor toor  3.1K service_enum.py
+-rw-r--r-- 1 toor toor  7.8K attack_surface_analyzer.py
+-rw-r--r-- 1 toor toor  9.1K vulnerability_scanner.py
+-rw-r--r-- 1 toor toor  6.3K generate_report.py
+-rw-r--r-- 1 toor toor  5.2K output.txt
+
+========================================
+Lab 06 Completed Successfully
+========================================

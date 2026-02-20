@@ -1,0 +1,83 @@
+{
+  "timestamp": "2026-02-21T11:42:18.513928",
+  "network_exposure": {
+    "listening_ports": [
+      {
+        "ip": "0.0.0.0",
+        "port": 22,
+        "pid": 1843,
+        "process": "sshd",
+        "user": "root",
+        "service_hint": ""
+      },
+      {
+        "ip": "127.0.0.53",
+        "port": 53,
+        "pid": 709,
+        "process": "systemd-resolved",
+        "user": "systemd-resolve",
+        "service_hint": ""
+      },
+      {
+        "ip": "::",
+        "port": 22,
+        "pid": 1843,
+        "process": "sshd",
+        "user": "root",
+        "service_hint": ""
+      }
+    ],
+    "total_listeners": 3
+  },
+  "process_analysis": {
+    "privileged_processes": [
+      {
+        "pid": 1843,
+        "name": "sshd",
+        "user": "root",
+        "cmd": "/usr/sbin/sshd -D",
+        "network": true
+      }
+    ],
+    "suspicious_processes": [
+      {
+        "pid": 1843,
+        "name": "sshd",
+        "user": "root",
+        "cmd": "/usr/sbin/sshd -D",
+        "reason": "root + network"
+      },
+      {
+        "pid": 709,
+        "name": "systemd-resolved",
+        "user": "root",
+        "cmd": "/lib/systemd/systemd-resolved",
+        "reason": "root + network"
+      }
+    ],
+    "privileged_count": 21,
+    "suspicious_count": 2
+  },
+  "vulnerabilities": [
+    {
+      "type": "Privileged Process with Network",
+      "severity": "MEDIUM",
+      "detail": "Process sshd (PID 1843) running as root has network activity",
+      "pid": 1843,
+      "process": "sshd"
+    },
+    {
+      "type": "Privileged Process with Network",
+      "severity": "MEDIUM",
+      "detail": "Process systemd-resolved (PID 709) running as root has network activity",
+      "pid": 709,
+      "process": "systemd-resolved"
+    }
+  ],
+  "risk_score": {
+    "open_ports_score": 9,
+    "privileged_process_score": 25,
+    "vulnerability_score": 42,
+    "total": 76
+  }
+}

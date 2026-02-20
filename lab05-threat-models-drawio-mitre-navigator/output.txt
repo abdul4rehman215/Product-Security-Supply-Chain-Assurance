@@ -1,0 +1,75 @@
+toor@ip-172-31-10-241:~$ firefox &
+[1] 18422
+
+toor@ip-172-31-10-241:~$ ls -lh ~/Downloads | grep -i ecommerce || true
+-rw-r--r-- 1 toor toor  54K Feb 20 14:10 ecommerce_threat_model.drawio
+
+toor@ip-172-31-10-241:~$ ls -lh ~/Downloads | grep -i ecommerce_attack_layer || true
+-rw-r--r-- 1 toor toor  9.3K Feb 20 14:18 ecommerce_attack_layer.json
+
+toor@ip-172-31-10-241:~$ cd ~/Desktop
+toor@ip-172-31-10-241:~/Desktop$ mkdir -p threat_modeling_lab
+toor@ip-172-31-10-241:~/Desktop$ cd threat_modeling_lab
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ pwd
+/home/toor/Desktop/threat_modeling_lab
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ nano requirements.txt
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ pip3 install --upgrade pip
+Requirement already satisfied: pip in /usr/lib/python3/dist-packages (24.0)
+Collecting pip
+  Downloading pip-25.0.1-py3-none-any.whl (2.1 MB)
+Installing collected packages: pip
+Successfully installed pip-25.0.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager.
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ pip3 install -r requirements.txt
+Requirement already satisfied: requests>=2.28.0 in /usr/lib/python3/dist-packages (2.31.0)
+Requirement already satisfied: pandas>=1.5.0 in /usr/lib/python3/dist-packages (2.2.2)
+Requirement already satisfied: matplotlib>=3.6.0 in /usr/lib/python3/dist-packages (3.8.2)
+Collecting networkx>=2.8.0
+  Downloading networkx-3.3-py3-none-any.whl (1.7 MB)
+Installing collected packages: networkx
+Successfully installed networkx-3.3
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager.
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ nano mitre_fetcher.py
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ python3 -m py_compile mitre_fetcher.py
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ nano threat_model_generator.py
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ python3 -m py_compile threat_model_generator.py
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ nano drawio_exporter.py
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ python3 -m py_compile drawio_exporter.py
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ chmod +x mitre_fetcher.py threat_model_generator.py drawio_exporter.py
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ python3 mitre_fetcher.py
+[+] MITRE ATT&CK Enterprise data fetched successfully
+[+] Techniques extracted: 712
+[+] Techniques with external IDs: 698
+[+] Saved to: mitre_techniques.csv
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ python3 threat_model_generator.py
+[+] Threat model generation complete
+[+] Assets: 4
+[+] Threats: 40
+[+] High-risk threats: 23
+[+] Generated: threat_model.json, threat_report.txt, threat_model.png
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ python3 drawio_exporter.py
+[+] Draw.io file generated: automated_threat_model.drawio
+[+] Import instructions:
+    1) Open https://app.diagrams.net/
+    2) File -> Import From -> Device
+    3) Select automated_threat_model.drawio
+
+toor@ip-172-31-10-241:~/Desktop/threat_modeling_lab$ ls -lh *.csv *.json *.png *.drawio *.txt
+-rw-r--r-- 1 toor toor 2.6M Feb 20 14:33 mitre_techniques.csv
+-rw-r--r-- 1 toor toor  34K Feb 20 14:34 threat_model.json
+-rw-r--r-- 1 toor toor 198K Feb 20 14:34 threat_model.png
+-rw-r--r-- 1 toor toor  3.2K Feb 20 14:34 threat_report.txt
+-rw-r--r-- 1 toor toor  91K Feb 20 14:34 automated_threat_model.drawio

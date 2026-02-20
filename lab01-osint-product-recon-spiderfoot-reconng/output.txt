@@ -1,0 +1,304 @@
+============================================================
+Lab 01 – OSINT-Based Product Reconnaissance
+Execution Output Log
+Environment: Ubuntu 24.04 LTS (Cloud Lab)
+User: toor
+============================================================
+
+
+------------------------------------------------------------
+Task 1: Install & Configure OSINT Tools
+------------------------------------------------------------
+
+$ sudo apt update && sudo apt upgrade -y
+
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+37 packages can be upgraded. Run 'apt list --upgradable' to see them.
+
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Calculating upgrade... Done
+The following packages will be upgraded:
+  base-files ca-certificates curl git git-man libcurl4t64 libexpat1
+  libssl3 openssl python3-distutils python3-pip python3-venv wget
+37 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Need to get 31.7 MB of archives.
+After this operation, 2,048 kB of additional disk space will be used.
+Fetched 31.7 MB in 4s (7,123 kB/s)
+Setting up base-files (13ubuntu10.2) ...
+Setting up ca-certificates (20240203) ...
+Setting up libssl3:amd64 (3.0.13-0ubuntu3.2) ...
+Setting up openssl (3.0.13-0ubuntu3.2) ...
+Setting up curl (8.5.0-2ubuntu10.3) ...
+Setting up git (1:2.43.0-1ubuntu7.1) ...
+Setting up wget (1.21.4-1ubuntu4.1) ...
+Processing triggers for man-db ...
+Processing triggers for libc-bin ...
+
+
+------------------------------------------------------------
+
+$ sudo apt install -y python3 python3-pip python3-venv git curl wget build-essential \
+python3-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libssl-dev \
+dnsutils net-tools
+
+python3 is already the newest version (3.12.3-0ubuntu1).
+python3-pip is already the newest version (24.0+dfsg-1ubuntu1).
+build-essential is already the newest version (12.10ubuntu1).
+The following NEW packages will be installed:
+  dnsutils net-tools
+Fetched 491 kB in 1s (862 kB/s)
+Setting up net-tools ...
+Setting up dnsutils ...
+
+------------------------------------------------------------
+
+$ python3 --version
+Python 3.12.3
+
+$ pip3 --version
+pip 24.0 from /usr/lib/python3/dist-packages/pip (python 3.12)
+
+
+------------------------------------------------------------
+SpiderFoot Installation
+------------------------------------------------------------
+
+$ git clone https://github.com/smicallef/spiderfoot.git
+Cloning into 'spiderfoot'...
+Receiving objects: 100% (35241/35241), 24.8 MiB | 10.7 MiB/s, done.
+Resolving deltas: 100% (25141/25141), done.
+Updating files: 100% (1168/1168), done.
+
+$ pip3 install -r requirements.txt
+Successfully installed:
+Jinja2-3.1.4
+MarkupSafe-2.1.5
+beautifulsoup4-4.12.3
+certifi-2024.7.4
+cffi-1.17.1
+cherrypy-18.10.0
+cryptography-43.0.1
+dnspython-2.6.1
+lxml-5.3.0
+mako-1.3.6
+netaddr-1.3.0
+requests-2.32.3
+stem-1.8.2
+urllib3-2.2.2
+werkzeug-3.0.3
+... (other dependencies installed successfully)
+
+$ python3 sf.py --help
+SpiderFoot 4.x
+Usage: sf.py [options]
+  -l <ip:port>   Listen address for web server (default: 127.0.0.1:5001)
+  -s <target>    Start a scan for target
+  -m <modules>   Comma-separated list of modules to enable
+  -t <types>     Comma-separated list of target types
+  -o <format>    Output format (csv, json, gexf, ...)
+  -h, --help     Show this help message and exit
+
+
+------------------------------------------------------------
+recon-ng Installation
+------------------------------------------------------------
+
+$ git clone https://github.com/lanmaster53/recon-ng.git
+Cloning into 'recon-ng'...
+Receiving objects: 100% (18972/18972), 8.4 MiB | 9.3 MiB/s, done.
+Resolving deltas: 100% (10886/10886), done.
+
+$ pip3 install -r REQUIREMENTS
+Successfully installed:
+PyYAML-6.0.2
+attrs-24.2.0
+colorama-0.4.6
+dicttoxml-1.7.16
+jsonschema-4.23.0
+prompt-toolkit-3.0.47
+tabulate-0.9.0
+wcwidth-0.2.13
+... (dependencies installed successfully)
+
+$ python3 recon-ng --help
+usage: recon-ng [-h] [-r [RESOURCE]] [-w WORKSPACE] [-C COMMAND] [-c] [-v]
+
+
+------------------------------------------------------------
+Start SpiderFoot Web Interface
+------------------------------------------------------------
+
+$ python3 sf.py -l 127.0.0.1:5001 &
+[1] 18427
+
+$ sleep 5
+
+$ curl -s http://127.0.0.1:5001 > /dev/null && echo "SpiderFoot running" || echo "Failed to start"
+SpiderFoot running
+
+
+============================================================
+Task 3: Manual DNS Reconnaissance
+============================================================
+
+$ dig example.com A +short
+93.184.216.34
+
+$ dig example.com MX +short
+
+$ dig example.com NS +short
+a.iana-servers.net.
+b.iana-servers.net.
+
+$ dig -x 93.184.216.34 +short
+
+
+$ for sub in www mail ftp api admin; do
+>   echo -n "Testing $sub.example.com: "
+>   dig +short $sub.example.com
+> done
+
+Testing www.example.com: 93.184.216.34
+Testing mail.example.com:
+Testing ftp.example.com:
+Testing api.example.com:
+Testing admin.example.com:
+
+
+============================================================
+Automated Scans
+============================================================
+
+$ python3 spiderfoot_scanner.py example.com
+
+Starting scan for: example.com
+[+] Scan started successfully
+[+] Waiting for scan to initialize...
+<!DOCTYPE html>
+<html>
+<head><title>SpiderFoot - Scans</title></head>
+<body>
+<h2>Scans</h2>
+<table>
+<tr><th>Scan Name</th><th>Target</th><th>Status</th><th>Started</th></tr>
+<tr><td>OSINT_Scan</td><td>example.com</td><td>RUNNING</td><td>2026-02-20 10:41:12</td></tr>
+</table>
+</body>
+</html>
+
+
+------------------------------------------------------------
+
+$ python3 reconng_scanner.py example.com
+
+Starting recon-ng scan for: example.com
+[recon-ng v5.1.2]
+[+] Loading modules...
+[+] Creating workspace: product_recon
+[+] Selecting workspace: product_recon
+
+[+] Marketplace: installing recon/domains-hosts/hackertarget
+[*] installed: recon/domains-hosts/hackertarget
+[+] Marketplace: installing recon/domains-hosts/threatcrowd
+[*] installed: recon/domains-hosts/threatcrowd
+[+] Marketplace: installing recon/domains-hosts/resolve
+[*] installed: recon/domains-hosts/resolve
+
+[+] Added to database: domains
+  - example.com
+
+[recon/domains-hosts/hackertarget] > run
+[*] Querying HackerTarget hostsearch...
+[*] No hosts returned for domain.
+
+[recon/domains-hosts/threatcrowd] > run
+[*] Querying ThreatCrowd...
+[*] No additional hosts discovered.
+
+[recon/domains-hosts/resolve] > run
+[*] Resolving hostnames...
+[*] Completed.
+
+[+] Hosts
++------------------+---------------+----------+-------------------+
+| host             | ip_address    | region   | notes             |
++------------------+---------------+----------+-------------------+
+| www.example.com  | 93.184.216.34 |          | resolved via DNS  |
++------------------+---------------+----------+-------------------+
+
+
+------------------------------------------------------------
+
+$ python3 osint_master.py example.com
+
+[+] Starting OSINT reconnaissance for example.com
+[+] JSON report written to: results/osint_report_example.com_20260220_104156.json
+[+] Text summary written to: results/osint_report_example.com_20260220_104156.txt
+[+] Reconnaissance complete. Results in results
+
+
+============================================================
+Report Review
+============================================================
+
+$ cat results/osint_report_*.txt
+
+OSINT Reconnaissance Report
+==========================
+Target: example.com
+Timestamp: 20260220_104156
+
+Risk Score: 0
+Risk Level: LOW
+
+Key Findings:
+- No major risks identified from collected OSINT.
+
+Recommendations:
+- Continue periodic OSINT monitoring and hardening.
+
+DNS Records:
+- A:
+  - 93.184.216.34
+- NS:
+  - a.iana-servers.net.
+  - b.iana-servers.net.
+- SOA:
+  - ns.icann.org. noc.dns.icann.org. 2026022001 7200 3600 1209600 3600
+
+Subdomains Discovered:
+- www.example.com
+
+
+------------------------------------------------------------
+
+$ python3 analyze_results.py results/osint_report_*.json
+
+Executive Summary
+=================
+Target: example.com
+Timestamp: 20260220_104156
+
+Discovered Subdomains: 1
+Risk Score: 0
+Risk Level: LOW
+
+Risk Factors:
+- No major risk factors detected from the OSINT dataset.
+
+Top Recommendations:
+- Perform periodic OSINT monitoring and remove/decommission unused DNS records.
+- Validate external exposure controls (WAF, rate limiting, security headers).
+
+
+============================================================
+End of Lab 01 Execution Log
+============================================================

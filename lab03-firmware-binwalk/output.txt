@@ -1,0 +1,246 @@
+==============================
+Task 1: Install and Configure binwalk
+==============================
+
+$ sudo apt update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+
+$ sudo apt install -y binwalk python3-pip git
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+git is already the newest version (1:2.43.0-1ubuntu7.1).
+python3-pip is already the newest version (24.0+dfsg-1ubuntu1).
+The following NEW packages will be installed:
+  binwalk
+Need to get 331 kB of archives.
+After this operation, 1,413 kB of additional disk space will be used.
+Fetched 331 kB in 1s
+Setting up binwalk (2.3.4+dfsg1-4) ...
+Processing triggers for man-db ...
+
+$ sudo apt install -y mtd-utils gzip bzip2 tar arj lhasa p7zip p7zip-full cabextract cramfsprogs cramfsswap
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following NEW packages will be installed:
+  arj cabextract cramfsprogs cramfsswap lhasa mtd-utils p7zip p7zip-full
+Fetched 2,602 kB in 1s
+Setting up cramfsswap (1.1-14) ...
+Processing triggers for man-db ...
+
+$ sudo apt install -y squashfs-tools sleuthkit default-jdk lzop srecord
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following NEW packages will be installed:
+  default-jdk lzop sleuthkit srecord squashfs-tools
+Fetched 4,165 kB in 2s
+Setting up default-jdk (2:1.21-75) ...
+Processing triggers for man-db ...
+
+$ pip3 install python-magic pycrypto
+Collecting python-magic
+Collecting pycrypto
+Successfully built pycrypto
+Successfully installed pycrypto-2.6.1 python-magic-0.4.27
+WARNING: Running pip as the 'root' user can result in broken permissions.
+
+==============================
+Verification
+==============================
+
+$ binwalk --help
+Binwalk v2.3.4
+
+Usage: binwalk [OPTIONS] [FILE1] ...
+
+$ binwalk --list-plugins
+Extractor plugins:
+  arj
+  cabextract
+  cpio
+  cramfs
+  gzip
+  lzop
+  p7zip
+  rar
+  squashfs
+  tar
+  uncompress
+  zip
+
+Signature plugins:
+  default
+  lzma
+  uimage
+  filesystem
+  compressed
+  archive
+  executable
+
+Entropy plugins:
+  shannon
+  rising_edge
+
+==============================
+Task 1: Download Firmware
+==============================
+
+$ mkdir ~/firmware_lab
+
+$ cd ~/firmware_lab
+
+$ wget https://downloads.openwrt.org/releases/22.03.0/targets/ath79/generic/openwrt-22.03.0-ath79-generictplink_archer-c7-v2-squashfs-sysupgrade.bin
+HTTP request sent, awaiting response... 200 OK
+Length: 5963776 (5.7M)
+Saving to: ‘openwrt-22.03.0-ath79-generictplink_archer-c7-v2-squashfs-sysupgrade.bin’
+100%[=====>] 5.69M  7.41MB/s
+saved [5963776/5963776]
+
+$ dd if=/dev/zero of=sample_firmware.bin bs=1024 count=1024
+1024+0 records in
+1024+0 records out
+1048576 bytes (1.0 MB) copied
+
+==============================
+Task 2: Firmware Analysis
+==============================
+
+$ binwalk sample_firmware.bin
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+
+$ binwalk -E sample_firmware.bin
+
+DECIMAL       HEXADECIMAL     ENTROPY
+--------------------------------------------------------------------------------
+0             0x0             0.000000
+
+$ binwalk -E --save sample_firmware.bin
+[+] Saved entropy plot data to: sample_firmware.bin.entropy
+
+$ binwalk -e sample_firmware.bin
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+WARNING: Extractor.execute failed to run external extractor 'squashfs': nothing to extract
+WARNING: Extractor.execute failed to run external extractor 'gzip': nothing to extract
+
+$ binwalk -e -v sample_firmware.bin
+Scan Time: 2026-02-20 12:20:04
+Target File: /home/toor/firmware_lab/sample_firmware.bin
+MD5 Checksum: 0f343b0931126a20f133d67c2b018a3b
+Signatures: 411
+Extractor: none (no signatures matched)
+
+$ ls -la _sample_firmware.bin.extracted/
+total 8
+drwxr-xr-x 2 toor toor 4096 .
+drwxr-xr-x 3 toor toor 4096 ..
+
+==============================
+Task 4: Automated Analysis
+==============================
+
+$ python3 firmware_analyzer.py sample_firmware.bin
+==================================================
+FIRMWARE SECURITY ANALYSIS
+==================================================
+[+] Analyzing firmware: sample_firmware.bin
+[+] Binwalk analysis completed
+[+] Extracting firmware components...
+[+] Firmware extraction completed
+[+] Analyzing extracted files...
+[+] File analysis completed
+[+] Searching for hardcoded secrets...
+[+] Found 0 potential secrets
+[+] Report saved to: analysis_sample_firmware/analysis_report.json
+
+[+] Analysis completed successfully!
+
+==============================
+ANALYSIS SUMMARY
+==============================
+Configuration files found: 0
+Credential files found: 0
+Private keys found: 0
+Executable files found: 0
+Web files found: 0
+Potential hardcoded secrets: 0
+
+$ ls -la analysis_sample_firmware
+total 12
+drwxr-xr-x 3 toor toor 4096 .
+drwxr-xr-x 5 toor toor 4096 ..
+drwxr-xr-x 2 toor toor 4096 _sample_firmware.bin.extracted
+-rw-r--r-- 1 toor toor  612 analysis_report.json
+
+$ python3 vulnerability_scanner.py analysis_sample_firmware/_sample_firmware.bin.extracted/
+==================================================
+FIRMWARE VULNERABILITY SCAN
+==================================================
+[+] Scanning for command injection vulnerabilities...
+[+] Scanning for hardcoded credentials...
+[+] Scanning for weak cryptographic implementations...
+[+] Scanning for insecure file permissions...
+
+[+] Vulnerability report saved to: analysis_sample_firmware/vulnerability_report.json
+
+==============================
+VULNERABILITY SUMMARY
+==============================
+Total vulnerabilities found: 0
+Critical: 0
+High: 0
+Medium: 0
+
+$ ./comprehensive_analysis.sh sample_firmware.bin
+==========================================
+COMPREHENSIVE FIRMWARE ANALYSIS
+==========================================
+Firmware: sample_firmware.bin
+Analysis Directory: comprehensive_analysis_sample_firmware
+==========================================
+[1/6] Running basic binwalk analysis...
+[2/6] Running entropy analysis...
+[3/6] Extracting firmware...
+WARNING: Extractor.execute failed to run external extractor 'squashfs'
+WARNING: Extractor.execute failed to run external extractor 'gzip'
+[4/6] Analyzing filesystem...
+Configuration files found: 0
+[5/6] Running security analysis...
+[6/6] Generating summary report...
+==========================================
+ANALYSIS COMPLETE
+==========================================
+Summary report: comprehensive_analysis_sample_firmware/analysis_summary.txt
+Extracted files: comprehensive_analysis_sample_firmware/_sample_firmware.bin.extracted/
+
+$ sed -n '1,80p' comprehensive_analysis_sample_firmware/analysis_summary.txt
+FIRMWARE ANALYSIS SUMMARY
+========================
+Firmware File: sample_firmware.bin
+Analysis Date: Fri Feb 20 12:33:10 UTC 2026
+Analysis Directory: comprehensive_analysis_sample_firmware
+
+BINWALK ANALYSIS:
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+
+FILESYSTEM STATISTICS:
+0
+Total files: 0
+0
+Configuration files found: 0
+
+SECURITY FINDINGS:
+No security findings available

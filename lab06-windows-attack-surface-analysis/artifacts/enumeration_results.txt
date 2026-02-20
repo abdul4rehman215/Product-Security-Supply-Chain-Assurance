@@ -1,0 +1,56 @@
+============================================================
+ PROCESS ENUMERATION TOOL
+============================================================
+[+] Top 20 Processes by CPU Usage
+|   PID | Name       | User           |   CPU% | Memory     | Command                           |
+|-------|------------|----------------|--------|------------|-----------------------------------|
+|  1321 | python3    | toor           |    6.0 |  78.4 MB   | python3 process_enum.py           |
+|   914 | systemd    | root           |    1.2 |  11.6 MB   | /sbin/init                        |
+|  1843 | sshd       | root           |    0.6 |   8.3 MB   | /usr/sbin/sshd -D                 |
+|  2210 | bash       | toor           |    0.4 |   5.1 MB   | -bash                             |
+|  1207 | unattended | root           |    0.2 |  24.0 MB   | /usr/bin/python3 /usr/bin/...     |
+|  1022 | containerd | root           |    0.1 |  52.7 MB   | /usr/bin/containerd               |
+|   732 | dbus-daemon| messagebus     |    0.0 |   3.6 MB   | /usr/bin/dbus-daemon --system     |
+|   888 | cron       | root           |    0.0 |   1.8 MB   | /usr/sbin/cron -f                 |
+|   995 | rsyslogd   | syslog         |    0.0 |   6.9 MB   | /usr/sbin/rsyslogd -n             |
+|  1678 | snapd      | root           |    0.0 |  27.3 MB   | /usr/lib/snapd/snapd              |
+|  1732 | polkitd    | root           |    0.0 |  11.2 MB   | /usr/lib/polkit-1/polkitd         |
+|  1889 | ssh        | toor           |    0.0 |   4.8 MB   | ssh toor@127.0.0.1                |
+|  1915 | sleep      | toor           |    0.0 |   0.3 MB   | sleep 9999                        |
+|  2051 | journalctl | toor           |    0.0 |   2.1 MB   | journalctl -xe                    |
+|  2199 | htop       | toor           |    0.0 |   4.1 MB   | htop                              |
+|   611 | systemd-j  | root           |    0.0 |  19.5 MB   | /lib/systemd/systemd-journald     |
+|   707 | systemd-n  | systemd-network|    0.0 |   2.9 MB   | /lib/systemd/systemd-networkd     |
+|   709 | systemd-r  | systemd-resolve|    0.0 |   4.7 MB   | /lib/systemd/systemd-resolved     |
+|   745 | snapfuse   | root           |    0.0 |   2.4 MB   | /usr/bin/snapfuse                 |
+|   812 | getty      | root           |    0.0 |   0.5 MB   | /sbin/agetty -o -p -- \\u         |
+
+[+] Suspicious Process Check
+| PID  | Name  | User | Indicator | NetConn | Command                 |
+|------|-------|------|----------|---------|--------------------------|
+| 1843 | sshd  | root |          | YES     | /usr/sbin/sshd -D        |
+| 1889 | ssh   | toor |          | YES     | ssh toor@127.0.0.1       |
+
+============================================================
+ SERVICE ENUMERATION TOOL
+============================================================
+[+] Active systemd services (showing up to 30)
+| Service                      | Load   | Active   | Sub     | Description                               |
+|-----------------------------|--------|----------|---------|-------------------------------------------|
+| cron.service                 | loaded | active   | running | Regular background program processing     |
+| dbus.service                 | loaded | active   | running | D-Bus System Message Bus                  |
+| ssh.service                  | loaded | active   | running | OpenBSD Secure Shell server               |
+| rsyslog.service              | loaded | active   | running | System Logging Service                    |
+| systemd-journald.service     | loaded | active   | running | Journal Service                           |
+| systemd-networkd.service     | loaded | active   | running | Network Service                           |
+| systemd-resolved.service     | loaded | active   | running | Network Name Resolution                   |
+| unattended-upgrades.service  | loaded | active   | running | Unattended Upgrades Shutdown              |
+[i] Total active services: 8
+
+[+] Network Listening Services Summary
+| Proto  | Local Address   | Process                           |
+|--------|-----------------|-----------------------------------|
+| LISTEN | 0.0.0.0:22      | ("sshd",pid=1843,fd=3)            |
+| LISTEN | 127.0.0.53:53   | ("systemd-resolve",pid=709,fd=13) |
+| LISTEN | [::]:22         | ("sshd",pid=1843,fd=4)            |
+[i] Total listeners: 3

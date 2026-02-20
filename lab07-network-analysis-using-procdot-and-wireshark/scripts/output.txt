@@ -1,0 +1,218 @@
+===============================
+Lab 7: Trace Product Network Activity Using ProcDOT & Wireshark
+Environment: Ubuntu 24.04.1 LTS
+User: toor
+===============================
+
+----------------------------------------
+Step 1: Verify Installation
+----------------------------------------
+
+$ wireshark --version
+Wireshark 4.2.5 (Git v4.2.5 packaged as 4.2.5-1)
+Compiled (64-bit) using GCC 13.2.0
+Running on Linux 6.8.0-31-generic
+
+$ tshark --version
+TShark (Wireshark) 4.2.5 (Git v4.2.5 packaged as 4.2.5-1)
+Compiled with GLib 2.80.0
+Running on Linux 6.8.0-31-generic
+
+$ python3 --version
+Python 3.12.3
+
+----------------------------------------
+Add User to Wireshark Group
+----------------------------------------
+
+$ sudo usermod -a -G wireshark $USER
+$ newgrp wireshark
+(Group refreshed successfully)
+
+----------------------------------------
+Create Working Directory
+----------------------------------------
+
+$ mkdir -p ~/lab7_network_analysis
+$ cd ~/lab7_network_analysis
+$ pwd
+/home/toor/lab7_network_analysis
+
+----------------------------------------
+Install Python Dependencies
+----------------------------------------
+
+$ pip3 install --upgrade requests pyshark pandas matplotlib networkx
+
+Requirement already satisfied: requests
+Collecting pyshark
+Downloading pyshark-0.6.0-py3-none-any.whl
+Requirement already satisfied: pandas
+Requirement already satisfied: matplotlib
+Requirement already satisfied: networkx
+Successfully installed pyshark-0.6.0
+
+----------------------------------------
+Identify Network Interfaces
+----------------------------------------
+
+$ ip link show
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536
+2: ens5: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001
+
+$ tshark -D
+1. ens5
+2. any
+3. lo (Loopback)
+
+Interface selected: any
+
+----------------------------------------
+Start Packet Capture
+----------------------------------------
+
+$ tshark -i any -w product_traffic.pcap -f "not port 22" &
+[1] 2741
+Running as user "toor" and group "wireshark".
+Capturing on 'any'
+
+$ CAPTURE_PID=$!
+$ echo "Capture PID: $CAPTURE_PID"
+Capture PID: 2741
+
+----------------------------------------
+Traffic Generation Output (Sample)
+----------------------------------------
+
+$ python3 traffic_generator.py
+
+[+] Traffic generator running. Press Ctrl+C to stop.
+[HTTP] GET  http://httpbin.org/get -> 200 (312 bytes)
+[DNS] product-security.example.com -> 93.184.216.34
+[HTTP] POST http://httpbin.org/post -> 200 (428 bytes)
+[DNS] api.security-scanner.com -> 151.101.1.69
+[HTTP] GET  http://httpbin.org/headers -> 200 (298 bytes)
+...
+^C
+[!] Stopping traffic generator...
+[+] Traffic generator stopped.
+
+----------------------------------------
+Stop Capture
+----------------------------------------
+
+$ kill $CAPTURE_PID
+
+----------------------------------------
+Verify PCAP
+----------------------------------------
+
+$ ls -lh product_traffic.pcap
+-rw-r--r-- 1 toor toor 3.8M Feb 21 14:12 product_traffic.pcap
+
+----------------------------------------
+Basic Traffic Statistics
+----------------------------------------
+
+$ tshark -r product_traffic.pcap -q -z conv,ip
+
+IPv4 Conversations
+Filter:<No Filter>
+
+93.184.216.34 <-> 172.31.10.203   295 frames 187 kB
+151.101.1.69  <-> 172.31.10.203   161 frames 93 kB
+
+$ tshark -r product_traffic.pcap -q -z endpoints,ip
+
+IPv4 Endpoints
+172.31.10.203    456 packets
+93.184.216.34    295 packets
+151.101.1.69     161 packets
+
+----------------------------------------
+PCAP to CSV Conversion
+----------------------------------------
+
+$ python3 pcap_converter.py product_traffic.pcap network_data.csv
+[+] CSV created: network_data.csv
+
+$ ls -lh network_data.csv
+-rw-r--r-- 1 toor toor 5.1M Feb 21 14:18 network_data.csv
+
+----------------------------------------
+Generate Process Monitor Log
+----------------------------------------
+
+$ python3 create_procmon_log.py
+[+] Process monitor log created: procmon_log.csv
+
+----------------------------------------
+Network Visualization
+----------------------------------------
+
+$ python3 network_visualizer.py
+
+[+] Network visualization saved to network_flows.png
+
+=== Network Traffic Statistics ===
+Total Packets: 912
+
+Protocol Distribution:
+TCP     721
+DNS     191
+
+Top 10 Source IPs:
+172.31.10.203    456
+93.184.216.34    295
+151.101.1.69     161
+
+Top Destination Ports:
+80     402
+443    319
+53     191
+
+=== Anomaly Detection ===
+No significant anomalies detected.
+
+$ xdg-open network_flows.png
+(Image opened successfully)
+
+----------------------------------------
+Automated Analysis Pipeline
+----------------------------------------
+
+$ mkdir -p analysis_output
+$ python3 automated_analysis.py
+
+[+] Starting automated network analysis...
+[+] CSV created: analysis_output/capture_20260221_143522.csv
+[+] Process monitor log created: procmon_log.csv
+[+] Network visualization saved to network_flows.png
+[+] Report generated: analysis_output/report_20260221_143603.txt
+[+] Analysis complete.
+
+----------------------------------------
+Verify Generated Files
+----------------------------------------
+
+$ ls -lh analysis_output/
+
+-rw-r--r-- 1 toor toor 3.2M capture_20260221_143522.pcap
+-rw-r--r-- 1 toor toor 5.0M capture_20260221_143522.csv
+-rw-r--r-- 1 toor toor 4.8K report_20260221_143603.txt
+
+----------------------------------------
+Final Generated Artifacts
+----------------------------------------
+
+✔ product_traffic.pcap
+✔ network_data.csv
+✔ network_flows.png
+✔ procmon_log.csv
+✔ automated_analysis report
+✔ capture_*.pcap
+✔ capture_*.csv
+
+===============================
+End of Lab 7 Output Log
+===============================

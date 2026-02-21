@@ -1,0 +1,240 @@
+Lab 10: Update Threat Models with New Data Inputs
+Output 
+Environment: Ubuntu 24.04.x (Cloud Lab)
+User: toor
+Working Directory: ~/threat-model-lab
+Date: 2026-02-21
+============================================================
+
+SECTION 1 — FULL OUTPUT (Commands + Results)
+------------------------------------------------------------
+
+[Task 1] Create Working Directory Structure
+$ mkdir -p ~/threat-model-lab/{data/{telemetry,network,threat-models},scripts,output,logs}
+$ cd ~/threat-model-lab
+$ ls -R
+.:
+data
+logs
+output
+scripts
+
+./data:
+network
+telemetry
+threat-models
+
+./data/network:
+
+./data/telemetry:
+
+./data/threat-models:
+
+./logs:
+
+./output:
+
+./scripts:
+
+
+[Task 1] Create Virtual Environment + Install Dependencies
+$ python3 -m venv threat-env
+$ source threat-env/bin/activate
+(threat-env) $ which python
+/home/toor/threat-model-lab/threat-env/bin/python
+
+(threat-env) $ pip install pandas numpy matplotlib requests pyyaml
+Looking in indexes: http://pypi.ace-research.openai.org/simple
+Collecting pandas
+  Downloading pandas-2.2.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (19 kB)
+Collecting numpy
+  Downloading numpy-2.0.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (60 kB)
+Collecting matplotlib
+  Downloading matplotlib-3.9.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (11 kB)
+Collecting requests
+  Downloading requests-2.32.3-py3-none-any.whl.metadata (4.6 kB)
+Collecting pyyaml
+  Downloading PyYAML-6.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.1 kB)
+...
+Installing collected packages: pytz, urllib3, tzdata, six, pyyaml, pyparsing, pillow, packaging, numpy, kiwisolver,
+idna, fonttools, cycler, contourpy, charset-normalizer, certifi, requests, python-dateutil, matplotlib, pandas
+Successfully installed certifi-2025.1.31 charset-normalizer-3.4.1 contourpy-1.3.0 cycler-0.12.1 fonttools-4.55.3
+idna-3.10 kiwisolver-1.4.7 matplotlib-3.9.2 numpy-2.0.1 packaging-24.2 pandas-2.2.2 pillow-10.4.0 pyparsing-3.2.1
+python-dateutil-2.9.0.post0 pytz-2025.1 pyyaml-6.0.2 requests-2.32.3 six-1.17.0 tzdata-2025.1 urllib3-2.3.0
+
+
+[Task 1] Execute Data Generators (from scripts directory)
+(threat-env) $ cd ~/threat-model-lab/scripts
+
+(threat-env) $ python3 telemetry_generator.py
+Saved telemetry data to ../data/telemetry/security_telemetry.json (1000 events)
+
+(threat-env) $ python3 network_data_generator.py
+Saved network data to ../data/network/network_analysis.json (500 flows)
+
+
+[Task 1] Verify Generated Data Files
+(threat-env) $ cd ..
+(threat-env) $ ls -lh data/telemetry/
+total 1.2M
+-rw-r--r-- 1 toor toor 1.2M Feb 21 16:46 security_telemetry.json
+
+(threat-env) $ ls -lh data/network/
+total 240K
+-rw-r--r-- 1 toor toor 238K Feb 21 16:46 network_analysis.json
+
+
+[Task 2] Run Threat Model Manager
+(threat-env) $ cd ~/threat-model-lab/scripts
+(threat-env) $ python3 threat_model_manager.py
+Saved threat model to ../data/threat-models/updated_threat_model.json
+Saved threat report to ../output/threat_report.json
+
+Threat Model Summary:
+ Total Telemetry Events: 1000
+ Total Network Flows: 500
+ Attack Patterns: 10
+ Malicious IPs: 4
+ Malicious Domains: 3
+
+
+[Task 2] Verify Threat Model + Report Files
+(threat-env) $ cd ..
+(threat-env) $ ls -lh data/threat-models/
+total 12K
+-rw-r--r-- 1 toor toor 8.7K Feb 21 16:49 updated_threat_model.json
+
+(threat-env) $ ls -lh output/
+total 20K
+-rw-r--r-- 1 toor toor 18K Feb 21 16:49 threat_report.json
+
+
+[Task 2] Examine Threat Model Metadata
+(threat-env) $ cat data/threat-models/updated_threat_model.json | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+print('Threat Model Summary:')
+print(f\" Version: {data['metadata']['version']}\")
+print(f\" Attack Patterns: {len(data['attack_patterns'])}\")
+print(f\" Last Updated: {data['metadata']['last_updated']}\")"
+Threat Model Summary:
+ Version: 1.0
+ Attack Patterns: 10
+ Last Updated: 2026-02-21T16:49:07.382914
+
+
+[Task 2] Examine Threat Report Summary
+(threat-env) $ cat output/threat_report.json | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+print('Threat Report Summary:')
+print(f\" Total Patterns: {data['summary']['total_attack_patterns']}\")
+print(f\" High Severity: {data['summary']['high_severity_techniques']}\")
+print(f\" Recommendations: {len(data['recommendations'])}\")"
+Threat Report Summary:
+ Total Patterns: 10
+ High Severity: 4
+ Recommendations: 11
+
+
+[Task 3] Run Automated Threat Updater
+(threat-env) $ cd ~/threat-model-lab/scripts
+(threat-env) $ python3 automated_threat_updater.py
+2026-02-21 16:54:18,921 - INFO - Starting threat model update cycle...
+2026-02-21 16:54:18,923 - INFO - Created backup: ../data/threat-models/backups/threat_model_20260221_165418.json
+2026-02-21 16:54:18,929 - INFO - No alerts generated.
+Saved threat model to ../data/threat-models/updated_threat_model.json
+Saved threat report to ../output/threat_report.json
+2026-02-21 16:54:18,933 - INFO - Update completed.
+2026-02-21 16:54:18,933 - INFO - Techniques: 10, IPs: 4, Domains: 3
+2026-02-21 16:54:18,936 - INFO - Saved metrics dashboard to ../output/metrics.json
+
+
+[Task 3] Check Updater Log (tail)
+(threat-env) $ cd ..
+(threat-env) $ tail -20 logs/threat_updater.log
+2026-02-21 16:54:18,921 - INFO - Starting threat model update cycle...
+2026-02-21 16:54:18,923 - INFO - Created backup: ../data/threat-models/backups/threat_model_20260221_165418.json
+2026-02-21 16:54:18,929 - INFO - No alerts generated.
+2026-02-21 16:54:18,933 - INFO - Update completed.
+2026-02-21 16:54:18,933 - INFO - Techniques: 10, IPs: 4, Domains: 3
+2026-02-21 16:54:18,936 - INFO - Saved metrics dashboard to ../output/metrics.json
+
+
+[Task 3] Verify Backups Directory
+(threat-env) $ ls -lh data/threat-models/backups/
+total 12K
+-rw-r--r-- 1 toor toor 8.7K Feb 21 16:54 threat_model_20260221_165418.json
+
+
+[Task 3] Generate Threat Visualizations
+(threat-env) $ cd ~/threat-model-lab/scripts
+(threat-env) $ python3 visualize_threats.py
+Threat visualizations generated successfully!
+
+(threat-env) $ cd ..
+(threat-env) $ ls -lh output/*.png
+-rw-r--r-- 1 toor toor 142K Feb 21 16:57 output/severity_distribution.png
+-rw-r--r-- 1 toor toor 164K Feb 21 16:57 output/tactic_coverage.png
+-rw-r--r-- 1 toor toor 176K Feb 21 16:57 output/technique_frequency.png
+
+
+[Task 4] Run Updater Again (Workflow Test)
+(threat-env) $ cd ~/threat-model-lab/scripts
+(threat-env) $ python3 automated_threat_updater.py
+2026-02-21 17:03:44,117 - INFO - Starting threat model update cycle...
+2026-02-21 17:03:44,119 - INFO - Created backup: ../data/threat-models/backups/threat_model_20260221_170344.json
+2026-02-21 17:03:44,125 - INFO - No alerts generated.
+Saved threat model to ../data/threat-models/updated_threat_model.json
+Saved threat report to ../output/threat_report.json
+2026-02-21 17:03:44,129 - INFO - Update completed.
+2026-02-21 17:03:44,129 - INFO - Techniques: 10, IPs: 4, Domains: 3
+2026-02-21 17:03:44,132 - INFO - Saved metrics dashboard to ../output/metrics.json
+
+
+[Task 4] Check All Outputs (Threat Model / Reports / Logs / Backups)
+(threat-env) $ echo "=== Threat Model ==="
+=== Threat Model ===
+(threat-env) $ ls -lh ../data/threat-models/
+total 12K
+drwxr-xr-x 2 toor toor 4096 Feb 21 17:03 backups
+-rw-r--r-- 1 toor toor 8.7K Feb 21 17:03 updated_threat_model.json
+
+(threat-env) $ echo "=== Reports ==="
+=== Reports ===
+(threat-env) $ ls -lh ../output/
+total 600K
+-rw-r--r-- 1 toor toor  458 Feb 21 17:03 metrics.json
+-rw-r--r-- 1 toor toor 142K Feb 21 16:57 severity_distribution.png
+-rw-r--r-- 1 toor toor 164K Feb 21 16:57 tactic_coverage.png
+-rw-r--r-- 1 toor toor 176K Feb 21 16:57 technique_frequency.png
+-rw-r--r-- 1 toor toor  18K Feb 21 17:03 threat_report.json
+
+(threat-env) $ echo "=== Logs ==="
+=== Logs ===
+(threat-env) $ ls -lh ../logs/
+total 8.0K
+-rw-r--r-- 1 toor toor    2 Feb 21 16:54 alerts.json
+-rw-r--r-- 1 toor toor  520 Feb 21 17:03 threat_updater.log
+
+(threat-env) $ echo "=== Backups ==="
+=== Backups ===
+(threat-env) $ ls -lh ../data/threat-models/backups/
+total 24K
+-rw-r--r-- 1 toor toor 8.7K Feb 21 16:54 threat_model_20260221_165418.json
+-rw-r--r-- 1 toor toor 8.7K Feb 21 17:03 threat_model_20260221_170344.json
+
+
+[Task 4] Config Loader Test
+(threat-env) $ python3 config_loader.py
+Configuration loaded successfully!
+{'data_sources': {'telemetry': {'path': '../data/telemetry/security_telemetry.json', 'enabled': True, 'refresh_interval': 300},
+'network': {'path': '../data/network/network_analysis.json', 'enabled': True, 'refresh_interval': 300}},
+'threat_model': {'output_path': '../data/threat-models/updated_threat_model.json', 'backup_enabled': True, 'backup_retention_days': 30},
+'alerting': {'enabled': True, 'thresholds': {'new_techniques': 3, 'high_frequency': 20, 'critical_severity': 5},
+'channels': [{'type': 'log', 'path': '../logs/alerts.log'}, {'type': 'file', 'path': '../logs/alerts.json'}]},
+'reporting': {'enabled': True, 'output_path': '../output/threat_report.json', 'schedule': '0 */6 * * *'},
+'monitoring': {'metrics_enabled': True, 'dashboard_path': '../output/metrics.json', 'update_interval': 60}}
+
+============================================================
+END OF FILE

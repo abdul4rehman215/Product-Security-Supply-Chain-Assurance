@@ -359,14 +359,14 @@ Even though this lab is controlled:
 
 Before concluding lab:
 
-✔ Server running
-✔ Port 8888 open
-✔ Packet crafter sends packets
-✔ Analyzer captures traffic
-✔ scan_report.json generated
-✔ No unhandled exceptions
-✔ Credential leak observed
-✔ Buffer overflow simulation confirmed
+- ✔ Server running
+- ✔ Port 8888 open
+- ✔ Packet crafter sends packets
+- ✔ Analyzer captures traffic
+- ✔ scan_report.json generated
+- ✔ No unhandled exceptions
+- ✔ Credential leak observed
+- ✔ Buffer overflow simulation confirmed
 
 ---
 

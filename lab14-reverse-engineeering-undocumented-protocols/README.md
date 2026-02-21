@@ -33,7 +33,43 @@ By the end of this lab, I was able to:
 
 ---
 
-## 🧩 Tasks Summary (High-Level)
+## 📁 Repository Structure
+
+```
+lab14-reverse-engineeering-undocumented-protocols/
+│
+├── README.md
+├── commands.sh
+├── output.txt
+├── interview_qna.md
+├── troubleshooting.md
+│   
+├── scripts/
+│   ├── custom_server.py
+│   ├── custom_client.py
+│   ├── protocol_analyzer.py
+│   ├── protocol_dissector.py
+│   ├── protocol_spec.py
+│   ├── vulnerability_scanner.py
+│   ├── exploit_poc.py
+│   ├── automated_analyzer.py
+│   └── protocol_fuzzer.py
+│   
+├── pcaps/
+│   └── protocol_capture.pcap
+│   
+├── reports/
+│   ├── dissector_results.json
+│   ├── protocol_spec.json
+│   ├── vulnerability_report.json
+│   ├── exploit_test_results.json
+│   ├── analysis_results.json
+│   └── fuzzing_report.json
+```
+
+---
+
+## 🧩 Tasks Summary
 ### **Task 1: Capture Traffic from a Custom Protocol**
 - Built a custom TCP server and client.
 - Captured traffic on localhost using `tcpdump`.
@@ -83,7 +119,7 @@ By the end of this lab, I was able to:
 
 ---
 
-## 🌍 Why This Matters (Real-World Relevance)
+## 🌍 Why This Matters 
 Undocumented/proprietary protocols are common in:
 - IoT devices (sensors, routers, cameras)
 - Industrial control systems (SCADA/OT)
@@ -98,6 +134,37 @@ Reverse engineering lets security analysts:
 
 ---
 
+### 🔐 Key Security Findings
+
+The protocol demonstrated several critical design weaknesses:
+
+- Plaintext transmission of sensitive data
+- Weak integrity protection (1-byte checksum)
+- No authentication mechanism
+- No anti-replay protection
+- Predictable protocol identifiers
+
+These weaknesses illustrate how custom or proprietary protocols often lack secure design principles when not peer-reviewed or formally threat-modeled.
+
+---
+
+## 🌍 Real-World Relevance
+
+Reverse engineering undocumented protocols is critical in:
+
+- IoT security assessments
+- Firmware analysis
+- Industrial control system auditing
+- Malware C2 communication analysis
+- Supply chain device validation
+- Legacy system modernization efforts
+
+Security analysts must be able to move from **raw packet capture → structured protocol understanding → vulnerability identification → documented security recommendations**.
+
+This lab demonstrated that complete workflow.
+
+---
+
 ## ✅ What I Learned
 - How to move from raw PCAP bytes → a structured protocol format
 - How to confirm field boundaries using hex inspection + `struct.unpack`
@@ -107,8 +174,35 @@ Reverse engineering lets security analysts:
 
 ---
 
+## 🏁 Conclusion
+
+In this lab, we performed full end-to-end reverse engineering of an undocumented TCP protocol.
+
+Starting from raw packet capture, we:
+
+- Identified consistent magic bytes (`CPRO`)
+- Reconstructed header structure and field offsets
+- Confirmed message format using structured parsing
+- Validated checksum behavior
+- Documented the protocol specification formally
+- Built automated analysis and vulnerability detection tooling
+- Demonstrated exploit feasibility through controlled PoC testing
+- Generated a protocol fingerprint for defensive detection
+
+---
+
+## 🎯 Final Result
+
+✔ Successfully captured and analyzed custom protocol traffic  
+✔ Reverse-engineered full protocol structure  
+✔ Identified multiple security weaknesses  
+✔ Built automation tooling for analysis and fingerprinting  
+✔ Produced documentation and structured reports  
+
+This lab reflects real-world product security assessment methodology.
+
+---
+
 ## ⚠️ Safety Note
 All exploit/fuzz steps in this lab are **localhost-only** and intended strictly for authorized lab testing.
 Never run these techniques against systems you do not own or have permission to test.
-
----

@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-02-21T17:42:19.482113",
+  "priorities": [
+    {
+      "id": "VULN-003",
+      "type": "Weak Authentication",
+      "severity": "High",
+      "location": "Password policy",
+      "cvss_score": 7.8,
+      "criticality_score": 10.0,
+      "priority_level": "Critical",
+      "recommended_actions": [
+        "Enforce strong password policy",
+        "Implement MFA",
+        "Rate limiting / account lockouts",
+        "Monitor login anomalies"
+      ],
+      "affected_attack_paths": [
+        {
+          "category": "high_impact_scenarios",
+          "risk_score": 18.72,
+          "path": ["VULN-003", "VULN-001", "VULN-004"]
+        }
+      ]
+    }
+  ]
+}

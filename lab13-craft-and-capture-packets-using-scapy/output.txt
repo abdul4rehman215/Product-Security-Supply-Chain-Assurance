@@ -1,0 +1,270 @@
+==========================================================
+Lab 13: Craft and Capture Packets Using Scapy
+Environment: Ubuntu 24.04
+User: toor
+==========================================================
+
+
+----------------------------------------------------------
+Task 1: Install and Verify Scapy
+----------------------------------------------------------
+
+$ sudo apt update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+18 packages can be upgraded.
+
+----------------------------------------------------------
+
+$ sudo apt install -y python3-pip python3-dev libpcap-dev tcpdump curl dnsutils
+
+python3-pip is already the newest version.
+tcpdump is already the newest version.
+curl is already the newest version.
+dnsutils is already the newest version.
+
+The following NEW packages will be installed:
+  libpcap-dev libpcap0.8-dev python3-dev python3-dev-is-python3 python3.12-dev
+
+After this operation, 26.0 MB of additional disk space will be used.
+Setting up libpcap0.8:amd64 ...
+Setting up python3-dev ...
+Processing triggers for libc-bin ...
+
+----------------------------------------------------------
+
+$ sudo apt install -y python3-scapy
+
+The following NEW packages will be installed:
+  python3-attr python3-chardet python3-colorama python3-cryptography
+  python3-dpkt python3-idna python3-ipython python3-matplotlib
+  python3-numpy python3-openssl python3-requests python3-scapy python3-urllib3
+
+Setting up python3-scapy (2.5.0+dfsg-2) ...
+Processing triggers for man-db ...
+
+----------------------------------------------------------
+
+$ sudo python3 -c "import scapy; print('Scapy version:', scapy.__version__)"
+Scapy version: 2.5.0
+
+----------------------------------------------------------
+
+$ ip addr show
+
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536
+    inet 127.0.0.1/8 scope host lo
+
+2: ens5: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001
+    inet 10.0.1.25/24 scope global dynamic ens5
+
+Primary interface noted: ens5
+
+
+==========================================================
+Task 2: Craft Custom Network Packets
+==========================================================
+
+$ sudo python3 packet_crafter.py
+
+[+] Crafted ICMP packet
+
+--- Packet Summary ---
+IP / ICMP 127.0.0.1 > 127.0.0.1 echo-request 0
+
+--- Packet Detailed View ---
+###[ IP ]###
+  src       = 127.0.0.1
+  dst       = 127.0.0.1
+###[ ICMP ]###
+  type      = echo-request
+
+[+] Crafted TCP SYN packet
+
+--- Packet Summary ---
+IP / TCP 127.0.0.1:49123 > 127.0.0.1:http S
+
+--- Packet Detailed View ---
+###[ TCP ]###
+  flags     = S
+
+[+] Crafted UDP packet
+
+--- Packet Summary ---
+IP / UDP 127.0.0.1:41822 > 127.0.0.1:domain / Raw
+
+[+] Saved packets to crafted_packets.pcap
+Packet crafting complete
+
+----------------------------------------------------------
+
+$ sudo python3 advanced_crafter.py
+
+[+] Created 3 port scan packets
+[+] Created 2 fragmented packets
+[+] Created custom TTL packet
+[+] Saved all packets to advanced_packets.pcap
+Advanced packet crafting complete
+
+----------------------------------------------------------
+
+$ tcpdump -r crafted_packets.pcap -n
+
+reading from file crafted_packets.pcap, link-type RAW
+IP 127.0.0.1 > 127.0.0.1: ICMP echo request
+IP 127.0.0.1.49123 > 127.0.0.1.80: Flags [S]
+IP 127.0.0.1.41822 > 127.0.0.1.53: UDP
+
+
+==========================================================
+Task 3: Capture and Analyze Network Traffic
+==========================================================
+
+$ ping -c 10 127.0.0.1 &
+$ curl -s http://example.com > /dev/null &
+$ nslookup google.com &
+
+(background jobs started)
+
+----------------------------------------------------------
+
+$ sudo python3 packet_capture.py
+
+Available interfaces:
+  - lo
+  - ens5
+
+[!] Default interface eth0 not found. Using: lo
+Starting capture on lo
+
+[1708507163.115] ICMP 127.0.0.1 -> 127.0.0.1
+...
+[1708507164.934] ICMP 127.0.0.1 -> 127.0.0.1
+
+Capture complete. Total packets captured: 20
+
+=== Analysis Results ===
+Packets by protocol:
+  ICMP: 20
+
+Top source IPs:
+  127.0.0.1: 20
+
+[+] Saved capture to captured.pcap
+Capture complete
+
+----------------------------------------------------------
+
+$ sudo python3 filtered_capture.py
+
+=== Capturing TCP packets ===
+IP 10.0.1.25:52144 > 93.184.216.34:http S
+IP 93.184.216.34:http > 10.0.1.25:52144 SA
+IP 10.0.1.25:52144 > 93.184.216.34:http A
+...
+[+] Saved tcp_only.pcap
+
+=== Capturing HTTP traffic (port 80) ===
+[HTTP Payload Preview] GET / HTTP/1.1
+Host: example.com
+
+[HTTP Payload Preview] HTTP/1.1 200 OK
+Content-Type: text/html
+...
+[+] Saved http_traffic.pcap
+
+=== Capturing DNS traffic (port 53) ===
+[DNS Query] google.com.
+[DNS Answer] 142.250.183.14
+[DNS Query] www.google.com.
+[DNS Answer] 142.250.183.4
+[+] Saved dns_traffic.pcap
+
+Filtered capture complete
+
+
+==========================================================
+Task 4: Automate Packet Operations
+==========================================================
+
+$ sudo python3 packet_automation.py
+
+Starting automated packet operations
+
+=== Correlation Statistics ===
+Sent packets: 8
+Captured packets: 26
+ICMP echo replies observed: 5
+TCP SYN-ACK responses observed: 0
+TCP RST responses observed: 3
+
+=== Saved Results ===
+Sent PCAP: automation_sent_20260221_144911.pcap
+Captured PCAP: automation_captured_20260221_144911.pcap
+Report JSON: automation_report_20260221_144911.json
+
+Automation complete
+
+----------------------------------------------------------
+
+$ sudo python3 send_receive.py
+
+=== ICMP Test ===
+[+] ICMP response received:
+IP / ICMP 127.0.0.1 > 127.0.0.1 echo-reply 0
+
+=== TCP Test (port 80) ===
+[+] TCP response received:
+IP / TCP 127.0.0.1:http > 127.0.0.1:45712 R
+TCP Flags: R
+
+=== Batch TCP Test (ports 22, 80, 443) ===
+[+] Answered count: 3
+127.0.0.1:22 -> R
+127.0.0.1:80 -> R
+127.0.0.1:443 -> R
+
+[-] Unanswered count: 0
+
+Send/receive tests complete
+
+----------------------------------------------------------
+
+$ ls -lh *.pcap
+
+advanced_packets.pcap
+crafted_packets.pcap
+captured.pcap
+dns_traffic.pcap
+http_traffic.pcap
+tcp_only.pcap
+automation_captured_20260221_144911.pcap
+automation_sent_20260221_144911.pcap
+
+----------------------------------------------------------
+
+$ cat automation_report_*.json | python3 -m json.tool
+
+{
+    "timestamp": "2026-02-21T14:49:11.981232",
+    "sent_count": 8,
+    "captured_count": 26,
+    "protocols": {
+        "ICMP": 10,
+        "TCP": 14,
+        "UDP": 0,
+        "OTHER": 2
+    },
+    "top_ips": {
+        "127.0.0.1": 18,
+        "10.0.1.25": 6,
+        "10.0.0.10": 2
+    }
+}
+
+==========================================================
+Lab 13 Completed Successfully
+==========================================================

@@ -73,8 +73,9 @@ lab08-process-product-telemetry-jupyter-pandas/
 │   ├── distribution_analysis.png
 │   ├── time_series_analysis.png
 │   ├── anomaly_detection.png
-│   ├── correlation_heatmap.png
-│   └── analysis_report.json
+│   └── correlation_heatmap.png
+├── reports/
+│   ├── analysis_report.json
 └── scripts/
     ├── generate_telemetry.py
     └── automate_analysis.py

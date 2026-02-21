@@ -75,7 +75,7 @@ lab08-process-product-telemetry-jupyter-pandas/
 │   ├── anomaly_detection.png
 │   └── correlation_heatmap.png
 ├── reports/
-│   ├── analysis_report.json
+│   └── analysis_report.json
 └── scripts/
     ├── generate_telemetry.py
     └── automate_analysis.py

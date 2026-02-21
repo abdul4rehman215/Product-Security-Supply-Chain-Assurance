@@ -1,0 +1,53 @@
+{
+  "patterns": {
+    "top_magic": [
+      [
+        "4350524f",
+        3
+      ]
+    ],
+    "top_prefix8": [
+      [
+        "4350524f01010025",
+        1
+      ],
+      [
+        "4350524f0102001f",
+        1
+      ],
+      [
+        "4350524f0103002c",
+        1
+      ]
+    ]
+  },
+  "vulnerabilities": [
+    "Low entropy suggests plaintext protocol traffic (no encryption)."
+  ],
+  "statistics": {
+    "payload_count": 3,
+    "min_length": 40,
+    "max_length": 53,
+    "avg_length": 46.333333333333336,
+    "min_entropy": 3.41,
+    "max_entropy": 3.78,
+    "avg_entropy": 3.62
+  },
+  "protocol_signature": {
+    "fingerprint_sha256": "8d7b7f3f8db0f2d7f12c5dfdc8d2b56b2bd6f4a2d2dd74f72d7ff93f6d9fd6c0",
+    "signature_input": {
+      "pcap_file": "protocol_capture.pcap",
+      "observed_magic": [
+        [
+          "4350524f",
+          3
+        ]
+      ],
+      "avg_len": 46.333333333333336,
+      "avg_entropy": 3.62
+    },
+    "detection_hint": "Look for TCP payloads starting with magic bytes 0x4350524f ('CPRO')."
+  },
+  "timestamp": "2026-02-21T16:19:12Z"
+ }
+  

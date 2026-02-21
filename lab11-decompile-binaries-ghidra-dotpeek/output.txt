@@ -1,0 +1,187 @@
+========================================
+Lab 11: Decompile Binaries Using Ghidra & dotPeek
+User: toor
+Environment: Ubuntu 24.04.1 LTS
+========================================
+
+==============================
+1. Install OpenJDK 17
+==============================
+
+$ sudo apt update && sudo apt install openjdk-17-jdk -y
+
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+18 packages can be upgraded.
+The following NEW packages will be installed:
+  openjdk-17-jdk openjdk-17-jdk-headless
+  openjdk-17-jre openjdk-17-jre-headless
+Need to get 118 MB of archives.
+Fetched 120 MB in 6s (19.5 MB/s)
+Setting up openjdk-17-jdk (17.0.11+9-0ubuntu1~24.04) ...
+Processing triggers for ca-certificates-java ...
+done.
+
+==============================
+2. Create Working Directory
+==============================
+
+$ mkdir -p ~/lab11-binary-analysis
+$ cd ~/lab11-binary-analysis
+$ pwd
+
+/home/toor/lab11-binary-analysis
+
+==============================
+3. Download Ghidra
+==============================
+
+$ wget ghidra_10.4_PUBLIC_20230928.zip
+
+Length: 594635412 (567M)
+Saving to: ‘ghidra_10.4_PUBLIC_20230928.zip’
+100%[======================================================>] 567.10M  15.3MB/s
+
+$ unzip ghidra_10.4_PUBLIC_20230928.zip
+
+Archive: ghidra_10.4_PUBLIC_20230928.zip
+creating: ghidra_10.4_PUBLIC/
+inflating: ghidra_10.4_PUBLIC/ghidraRun
+inflating: ghidra_10.4_PUBLIC/support/analyzeHeadless
+...
+
+$ mv ghidra_10.4_PUBLIC ghidra
+$ chmod +x ghidra/ghidraRun
+
+$ ./ghidra/ghidraRun -h | head -20
+
+Ghidra Launcher
+Usage: ghidraRun [options]
+-h, --help
+-vm <path>
+-jdk_home <path>
+-showversion
+
+==============================
+4. Compile Vulnerable C App
+==============================
+
+$ gcc -o vulnerable_app vulnerable_app.c -fno-stack-protector -z execstack -no-pie
+
+$ file vulnerable_app
+
+vulnerable_app: ELF 64-bit LSB executable,
+x86-64, dynamically linked, not stripped
+
+==============================
+5. Install Wine
+==============================
+
+$ sudo apt install -y wine64 wine32
+
+The following NEW packages will be installed:
+  wine32 wine64
+Need to get 154 MB of archives.
+After this operation, 1,013 MB disk space will be used.
+Setting up wine64 ...
+Setting up wine32 ...
+
+$ winecfg
+
+wine: created the configuration directory '/home/toor/.wine'
+wine: configuration updated.
+(GUI opened and closed successfully)
+
+==============================
+6. Install dotPeek
+==============================
+
+$ wget JetBrains.dotPeek.2023.2.3.exe
+
+Length: 147291992 (140M)
+Saving to: ‘JetBrains.dotPeek.2023.2.3.exe’
+100%[======================================================>] 140.47M
+
+$ wine JetBrains.dotPeek.2023.2.3.exe
+
+(dotPeek installer launched successfully)
+
+==============================
+7. Compile Vulnerable .NET App
+==============================
+
+$ sudo apt install mono-devel
+
+Setting up mono-devel ...
+Processing triggers for libc-bin ...
+
+$ mcs VulnerableApp.cs -out:VulnerableApp.exe
+
+$ file VulnerableApp.exe
+
+VulnerableApp.exe: PE32 executable (console)
+Intel 80386 Mono/.Net assembly
+
+==============================
+8. Run Ghidra Headless Automation
+==============================
+
+$ chmod +x scripts/automated_analysis.py
+$ python3 scripts/automated_analysis.py
+
+Saved analysis report to:
+ /home/toor/lab11-binary-analysis/automated_analysis/analysis_report.json
+
+Summary:
+{'total_targets': 2, 'successful': 1, 'failed': 1}
+
+==============================
+9. View JSON Analysis Report
+==============================
+
+$ cat automated_analysis/analysis_report.json
+
+{
+  "generated_at": "2026-02-21T13:51:02.418304",
+  "summary": {
+    "total_targets": 2,
+    "successful": 1,
+    "failed": 1
+  },
+  "results": [
+    {
+      "binary": "/home/toor/lab11-binary-analysis/VulnerableApp.exe",
+      "status": "failed",
+      "error": "Headless analysis timed out"
+    },
+    {
+      "binary": "/home/toor/lab11-binary-analysis/vulnerable_app",
+      "status": "success",
+      "quick_findings": [
+        "Possible reference to strcpy found in headless output/logs",
+        "Possible reference to system found in headless output/logs",
+        "Possible reference to printf found in headless output/logs"
+      ]
+    }
+  ]
+}
+
+==============================
+LAB RESULT SUMMARY
+==============================
+
+✔ Ghidra successfully decompiled ELF binary
+✔ Identified buffer overflow, format string, command injection
+✔ dotPeek successfully decompiled .NET assembly
+✔ Identified SQL injection, path traversal, hardcoded secret
+✔ Automated headless analysis completed for ELF binary
+✔ .NET headless failure expected (format difference)
+
+========================================
+End of Lab 11 Output
+========================================

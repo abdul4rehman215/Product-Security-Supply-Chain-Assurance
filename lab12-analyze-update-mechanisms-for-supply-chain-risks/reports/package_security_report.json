@@ -1,0 +1,27 @@
+{
+    "total_issues": 3,
+    "security_score": 40,
+    "vulnerabilities": [
+        {
+            "file": "/etc/apt/sources.list",
+            "line": 4,
+            "issue": "Source uses HTTP instead of HTTPS",
+            "severity": "HIGH",
+            "source": "deb http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse"
+        },
+        {
+            "file": "/etc/apt/sources.list",
+            "line": 5,
+            "issue": "Source uses HTTP instead of HTTPS",
+            "severity": "HIGH",
+            "source": "deb http://archive.ubuntu.com/ubuntu noble-updates main restricted universe multiverse"
+        },
+        {
+            "file": "/etc/apt/sources.list",
+            "line": 6,
+            "issue": "Source uses HTTP instead of HTTPS",
+            "severity": "HIGH",
+            "source": "deb http://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse"
+        }
+    ]
+}

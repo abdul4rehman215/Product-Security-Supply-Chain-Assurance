@@ -1,0 +1,37 @@
+CVSS v3.1 Manual Calculation - VULN-001
+========================================
+
+Metric Values:
+- AV: Network = 0.85
+- AC: Low = 0.77
+- PR: None = 0.85
+- UI: None = 0.85
+- S: Unchanged
+- C: High = 0.56
+- I: High = 0.56
+- A: High = 0.56
+
+Exploitability Formula:
+8.22 × AV × AC × PR × UI
+
+Exploitability Calculation:
+8.22 × 0.85 × 0.77 × 0.85 × 0.85 = 3.89
+
+Impact Sub-Score (ISS):
+ISS = 1 - [(1-C) × (1-I) × (1-A)]
+ISS = 1 - [(1-0.56) × (1-0.56) × (1-0.56)]
+ISS = 1 - (0.44 × 0.44 × 0.44)
+ISS = 1 - 0.085 = 0.915
+
+Impact Score:
+Impact = 6.42 × ISS
+Impact = 6.42 × 0.915 = 5.88
+
+Base Score:
+Impact + Exploitability = 5.88 + 3.89 = 9.77
+Round up to one decimal place → 9.8
+
+Severity Rating:
+9.8 = Critical
+
+Manual Verification Complete.

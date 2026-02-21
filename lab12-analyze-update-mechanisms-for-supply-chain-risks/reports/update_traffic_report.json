@@ -1,0 +1,124 @@
+{
+    "timestamp": "2026-02-21T14:22:31.102948",
+    "total_connections_captured": 7,
+    "unique_destinations": [
+        "169.254.169.254:80",
+        "185.125.190.82:80",
+        "91.189.91.38:80",
+        "91.189.91.49:80",
+        "91.189.91.83:80"
+    ],
+    "suspicious_activity_count": 2,
+    "suspicious_activity": [
+        {
+            "timestamp": "2026-02-21T14:22:23.011824",
+            "connection": {
+                "proto": "tcp",
+                "local_ip": "10.0.1.25",
+                "local_port": "44210",
+                "remote_ip": "169.254.169.254",
+                "remote_port": "80",
+                "state": "ESTABLISHED",
+                "process": "1452/amazon-ssm-agen",
+                "timestamp": "2026-02-21T14:22:23.010990"
+            },
+            "issues": [
+                "Unencrypted HTTP connection detected (port 80)",
+                "Remote destination is an IP address (not a domain)"
+            ],
+            "severity": "HIGH",
+            "flagged": true
+        },
+        {
+            "timestamp": "2026-02-21T14:22:25.019332",
+            "connection": {
+                "proto": "tcp",
+                "local_ip": "10.0.1.25",
+                "local_port": "54132",
+                "remote_ip": "91.189.91.38",
+                "remote_port": "80",
+                "state": "ESTABLISHED",
+                "process": "26588/apt",
+                "timestamp": "2026-02-21T14:22:25.018771"
+            },
+            "issues": [
+                "Unencrypted HTTP connection detected (port 80)",
+                "Remote destination is an IP address (not a domain)"
+            ],
+            "severity": "HIGH",
+            "flagged": true
+        }
+    ],
+    "connections": [
+        {
+            "proto": "tcp",
+            "local_ip": "10.0.1.25",
+            "local_port": "44210",
+            "remote_ip": "169.254.169.254",
+            "remote_port": "80",
+            "state": "ESTABLISHED",
+            "process": "1452/amazon-ssm-agen",
+            "timestamp": "2026-02-21T14:22:23.010990"
+        },
+        {
+            "proto": "tcp",
+            "local_ip": "10.0.1.25",
+            "local_port": "54132",
+            "remote_ip": "91.189.91.38",
+            "remote_port": "80",
+            "state": "ESTABLISHED",
+            "process": "26588/apt",
+            "timestamp": "2026-02-21T14:22:25.018771"
+        },
+        {
+            "proto": "tcp",
+            "local_ip": "10.0.1.25",
+            "local_port": "54134",
+            "remote_ip": "91.189.91.49",
+            "remote_port": "80",
+            "state": "ESTABLISHED",
+            "process": "26588/apt",
+            "timestamp": "2026-02-21T14:22:27.026612"
+        },
+        {
+            "proto": "tcp",
+            "local_ip": "10.0.1.25",
+            "local_port": "54136",
+            "remote_ip": "91.189.91.83",
+            "remote_port": "80",
+            "state": "ESTABLISHED",
+            "process": "26588/apt",
+            "timestamp": "2026-02-21T14:22:29.034451"
+        },
+        {
+            "proto": "tcp",
+            "local_ip": "10.0.1.25",
+            "local_port": "42252",
+            "remote_ip": "185.125.190.82",
+            "remote_port": "80",
+            "state": "ESTABLISHED",
+            "process": "26588/apt",
+            "timestamp": "2026-02-21T14:22:29.034990"
+        },
+        {
+            "proto": "tcp",
+            "local_ip": "10.0.1.25",
+            "local_port": "22",
+            "remote_ip": "10.0.0.10",
+            "remote_port": "59744",
+            "state": "ESTABLISHED",
+            "process": "1121/sshd: toor",
+            "timestamp": "2026-02-21T14:22:31.041102"
+        },
+        {
+            "proto": "tcp",
+            "local_ip": "10.0.1.25",
+            "local_port": "46218",
+            "remote_ip": "10.0.0.10",
+            "remote_port": "44322",
+            "state": "ESTABLISHED",
+            "process": "1121/sshd: toor",
+            "timestamp": "2026-02-21T14:22:31.041551"
+        }
+    ]
+}

@@ -1,0 +1,168 @@
+# -----------------------------------------
+# Task 1: Verify Environment Setup
+# -----------------------------------------
+
+toor@ip-172-31-10-194:~$ python3 --version
+Python 3.12.3
+
+toor@ip-172-31-10-194:~$ python3 -c "from scapy.all import *; print('Scapy ready')"
+Scapy ready
+
+toor@ip-172-31-10-194:~$ sudo apt update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+12 packages can be upgraded. Run 'apt list --upgradable' to see them.
+
+toor@ip-172-31-10-194:~$ sudo apt install -y python3-pip
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+python3-pip is already the newest version (24.0+dfsg-1ubuntu1).
+0 upgraded, 0 newly installed, 0 to remove and 12 not upgraded.
+
+toor@ip-172-31-10-194:~$ pip3 install --break-system-packages colorama tabulate scapy
+Looking in indexes: https://pypi.org/simple
+Requirement already satisfied: colorama in /usr/lib/python3/dist-packages (0.4.6)
+Collecting tabulate
+  Downloading tabulate-0.9.0-py3-none-any.whl (35 kB)
+Requirement already satisfied: scapy in /usr/lib/python3/dist-packages (2.5.0)
+Installing collected packages: tabulate
+Successfully installed tabulate-0.9.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager.
+
+
+# -----------------------------------------
+# Task 1: Create Working Directory
+# -----------------------------------------
+
+toor@ip-172-31-10-194:~$ mkdir -p ~/lab15_protocol_testing
+toor@ip-172-31-10-194:~$ cd ~/lab15_protocol_testing
+
+(no output)
+
+toor@ip-172-31-10-194:~/lab15_protocol_testing$ python3 -m py_compile protocol_server.py
+
+(no output — compile OK)
+
+
+# -----------------------------------------
+# Task 1: Start Server (Terminal 1)
+# -----------------------------------------
+
+toor@ip-172-31-10-194:~/lab15_protocol_testing$ python3 protocol_server.py
+[+] Server listening on 127.0.0.1:8888
+
+
+# -----------------------------------------
+# Task 2: Run Packet Crafter (Terminal 2)
+# -----------------------------------------
+
+toor@ip-172-31-10-194:~/lab15_protocol_testing$ python3 packet_crafter.py
+
+[*] Testing valid commands
+Echo Response: b'\xbe\xef\x00\x01\x00\x01\x00\x05Hello'
+Status Response: b'\xbe\xef\x00\x01\x00\x02\x00\tSTATUS_OK'
+Invalid Command Response: b'\xbe\xef\x00\x01\x00\x03\x00\x0fUNKNOWN_COMMAND'
+
+[*] Testing invalid magic numbers
+Magic 0x0 Response: b'\xbe\xef\x00\x01\xff\xff\x00\x00'
+Magic 0xffff Response: b'\xbe\xef\x00\x01\xff\xff\x00\x00'
+Magic 0x1234 Response: b'\xbe\xef\x00\x01\xff\xff\x00\x00'
+
+[*] Testing authentication bypass
+[!] Sensitive data leaked via command 999: b'\xbe\xef\x00\x01\x03\xe7\x00\x1dADMIN:root PASSWORD:supersecret'
+
+[*] Testing buffer overflow
+Overflow Response: b'\xbe\xef\x00\x01\x00\x01\x00\x18BUFFER_OVERFLOW_DETECTED'
+
+[*] Testing command injection
+Payload b'; ls -la' Response: b'\xbe\xef\x00\x01\x00\x01\x00\x08; ls -la'
+Payload b'| whoami' Response: b'\xbe\xef\x00\x01\x00\x01\x00\x08| whoami'
+Payload b'&& cat /etc/passwd' Response: b'\xbe\xef\x00\x01\x00\x01\x00\x10&& cat /etc/passwd'
+
+
+# -----------------------------------------
+# Task 3: Run Traffic Analyzer (Terminal 2)
+# -----------------------------------------
+
+toor@ip-172-31-10-194:~/lab15_protocol_testing$ sudo python3 traffic_analyzer.py
+
+Command Frequency: Counter({1: 8, 2: 1, 3: 1, 999: 1, 1412: 1, 0: 1, 876: 1})
+Magic Numbers Seen: Counter({57005: 11, 48879: 2, 4660: 1, 65535: 1})
+Max Payload Size: 2000
+
+
+# -----------------------------------------
+# Task 3: Run Automated Scanner
+# -----------------------------------------
+
+toor@ip-172-31-10-194:~/lab15_protocol_testing$ python3 automated_scanner.py
+
+=== Vulnerability Report ===
+Type                     Severity    Description
+-----------------------  ----------  -----------------------------------------------
+Hidden admin command     CRITICAL    Command 999 returns plaintext credentials
+Overflow condition       HIGH        Length > 1000 triggers overflow behavior
+Weak input handling      MEDIUM      Echo endpoint reflects raw payload bytes
+Injection-like payloads  MEDIUM      Protocol accepts and echoes suspicious strings
+Fuzzing observations     LOW         Server responds to random commands without lockout
+
+Report saved to scan_report.json
+
+
+# -----------------------------------------
+# Verify Files
+# -----------------------------------------
+
+toor@ip-172-31-10-184:~/lab15_protocol_testing$ ls
+automated_scanner.py
+packet_crafter.py
+protocol_server.py
+scan_report.json
+test_config.json
+traffic_analyzer.py
+
+
+toor@ip-172-31-10-194:~/lab15_protocol_testing$ cat scan_report.json
+[
+  {
+    "type": "Hidden admin command",
+    "severity": "CRITICAL",
+    "description": "Command 999 returns plaintext credentials"
+  },
+  {
+    "type": "Overflow condition",
+    "severity": "HIGH",
+    "description": "Length > 1000 triggers overflow behavior"
+  },
+  {
+    "type": "Weak input handling",
+    "severity": "MEDIUM",
+    "description": "Echo endpoint reflects raw payload bytes"
+  },
+  {
+    "type": "Injection-like payloads",
+    "severity": "MEDIUM",
+    "description": "Protocol accepts and echoes suspicious strings"
+  },
+  {
+    "type": "Fuzzing observations",
+    "severity": "LOW",
+    "description": "Server responds to random commands without lockout"
+  }
+]
+
+
+# -----------------------------------------
+# Troubleshooting Verification Commands
+# -----------------------------------------
+
+toor@ip-172-31-10-194:~/lab15_protocol_testing$ ss -tlnp | grep 8888
+LISTEN 0      5        127.0.0.1:8888      0.0.0.0:*    users:(("python3",pid=23814,fd=3))
+
+toor@ip-172-31-10-194:~/lab15_protocol_testing$ nc -zv 127.0.0.1 8888
+Connection to 127.0.0.1 8888 port [tcp/*] succeeded!

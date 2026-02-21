@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-02-21T16:20:03Z",
+  "target": "127.0.0.1:8888",
+  "iterations": 19,
+  "crash_cases_count": 0,
+  "crash_cases": [],
+  "all_results": [
+    {
+      "category": "magic_bytes",
+      "magic": "7a2f1fbd",
+      "response_preview": "",
+      "success": true
+    },
+    {
+      "category": "length_field",
+      "case": "mismatch_large",
+      "response_preview": "",
+      "success": true
+    }

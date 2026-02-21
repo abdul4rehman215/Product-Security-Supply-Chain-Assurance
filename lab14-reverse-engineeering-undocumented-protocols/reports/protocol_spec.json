@@ -1,0 +1,23 @@
+{
+  "protocol_name": "Custom Protocol",
+  "version": "1.0",
+  "format": "[MAGIC(4)][VERSION(1)][TYPE(1)][LENGTH(2)][DATA][CHECKSUM(1)]",
+  "fields": [
+    {
+      "name": "MAGIC",
+      "size_bytes": 4,
+      "offset": 0,
+      "description": "Protocol identifier. Expected value: 'CPRO' (0x43 0x50 0x52 0x4f)."
+    },
+    {
+      "name": "VERSION",
+      "size_bytes": 1,
+      "offset": 4,
+      "description": "Protocol version. Observed value: 1."
+    },
+    {
+      "name": "TYPE",
+      "size_bytes": 1,
+      "offset": 5,
+      "description": "Message type code."
+    },

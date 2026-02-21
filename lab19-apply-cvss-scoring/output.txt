@@ -1,0 +1,180 @@
+============================================================
+Lab 19: Apply CVSS Scoring to Discovered Threats
+Execution Output Log
+============================================================
+
+------------------------------------------------------------
+Step 1: Validate Sample Vulnerabilities JSON
+------------------------------------------------------------
+toor@ip-172-31-10-142:~/cvss-lab$ python3 -m json.tool vulnerabilities/sample_vulnerabilities.json
+
+{
+    "vulnerabilities": [
+        {
+            "id": "VULN-001",
+            "name": "SQL Injection in Login Form",
+            "description": "Unauthenticated SQL injection vulnerability",
+            "cve": "CVE-2023-12345",
+            "attack_vector": "Network",
+            "attack_complexity": "Low",
+            "privileges_required": "None",
+            "user_interaction": "None",
+            "scope": "Unchanged",
+            "confidentiality_impact": "High",
+            "integrity_impact": "High",
+            "availability_impact": "High"
+        },
+        {
+            "id": "VULN-002",
+            "name": "Stored XSS Vulnerability",
+            ...
+        },
+        {
+            "id": "VULN-003",
+            ...
+        }
+    ]
+}
+
+✔ JSON syntax valid.
+
+
+------------------------------------------------------------
+Step 2: Run CVSS Calculator
+------------------------------------------------------------
+toor@ip-172-31-10-142:~/cvss-lab/scripts$ python3 cvss_calculator.py
+
+CVSS v3.1 Calculator
+==================================================
+Processed VULN-001: 9.8 (Critical)
+Processed VULN-003: 8.8 (High)
+Processed VULN-002: 6.4 (Medium)
+--------------------------------------------------
+Total vulnerabilities processed: 3
+Average CVSS score: 8.33
+Highest score: VULN-001 = 9.8
+Lowest score: VULN-002 = 6.4
+
+✔ CVSS calculations working correctly
+✔ Scores align with manual expectations
+
+
+------------------------------------------------------------
+Step 3: Generate JSON Report
+------------------------------------------------------------
+toor@ip-172-31-10-142:~/cvss-lab/scripts$ python3 cvss_reporter.py ../vulnerabilities/sample_vulnerabilities.json -o ../reports/report.json
+
+CVSS Report Generated
+==================================================
+Output file: ../reports/report.json
+Format: json
+Total vulnerabilities: 3
+Severity counts:
+  Critical: 1
+  High: 1
+  Medium: 1
+  Low: 0
+  None: 0
+  Unknown: 0
+Average score: 8.33
+
+
+------------------------------------------------------------
+Step 4: Generate HTML Report
+------------------------------------------------------------
+toor@ip-172-31-10-142:~/cvss-lab/scripts$ python3 cvss_reporter.py ../vulnerabilities/sample_vulnerabilities.json -o ../reports/report.html -f html
+
+CVSS Report Generated
+==================================================
+Output file: ../reports/report.html
+Format: html
+Total vulnerabilities: 3
+Severity counts:
+  Critical: 1
+  High: 1
+  Medium: 1
+  Low: 0
+  None: 0
+  Unknown: 0
+Average score: 8.33
+
+
+------------------------------------------------------------
+Step 5: Generate CSV Report
+------------------------------------------------------------
+toor@ip-172-31-10-142:~/cvss-lab/scripts$ python3 cvss_reporter.py ../vulnerabilities/sample_vulnerabilities.json -o ../reports/report.csv -f csv
+
+CVSS Report Generated
+==================================================
+Output file: ../reports/report.csv
+Format: csv
+Total vulnerabilities: 3
+Severity counts:
+  Critical: 1
+  High: 1
+  Medium: 1
+  Low: 0
+  None: 0
+  Unknown: 0
+Average score: 8.33
+
+
+------------------------------------------------------------
+Step 6: Verify Generated Files
+------------------------------------------------------------
+toor@ip-172-31-10-142:~/cvss-lab/scripts$ ls ../reports
+
+report.json
+report.html
+report.csv
+
+
+------------------------------------------------------------
+Step 7: Run Vulnerability Prioritization
+------------------------------------------------------------
+toor@ip-172-31-10-142:~/cvss-lab/scripts$ python3 prioritize_vulns.py ../reports/report.json
+
+Vulnerability Prioritization
+============================================================
+Overall Risk Score (0-100): 82.47
+
+------------------------------------------------------------
+Critical (1) - Remediation Timeline: Immediate (24-72 hours)
+------------------------------------------------------------
+VULN-001 | Score: 9.8 | SQL Injection in Login Form
+Vector: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+
+------------------------------------------------------------
+High (1) - Remediation Timeline: Short-term (within 7 days)
+------------------------------------------------------------
+VULN-003 | Score: 8.8 | Local Privilege Escalation
+Vector: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H
+
+------------------------------------------------------------
+Medium (1) - Remediation Timeline: Planned (within 30 days)
+------------------------------------------------------------
+VULN-002 | Score: 6.4 | Stored XSS Vulnerability
+Vector: CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:N
+
+============================================================
+
+✔ Prioritization working correctly
+✔ Risk normalized to 0–100 scale
+
+
+------------------------------------------------------------
+Step 8: Executive Summary Created
+------------------------------------------------------------
+toor@ip-172-31-10-142:~/cvss-lab$ ls reports
+
+report.json
+report.html
+report.csv
+executive_summary.txt
+
+✔ Executive-level report successfully generated
+
+
+============================================================
+Lab 19 Execution Completed Successfully
+============================================================

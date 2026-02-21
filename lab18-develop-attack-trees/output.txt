@@ -1,0 +1,158 @@
+============================================================
+Attack Tree Script Test
+============================================================
+
+(.venv) toor@ip-172-31-10-203:~/attack-trees-lab/scripts$ python3 attack_tree.py
+
+- [OR] Compromise Web Application (p=0.00, impact=0.00, cost=0.00, risk=0.00)
+  - [LEAF] SQL Injection (p=0.80, impact=9.00, cost=50.00, risk=7.20)
+
+✔ Risk = 0.8 × 9.0 = 7.20
+
+
+============================================================
+Vulnerability-Specific Attack Trees
+============================================================
+
+(.venv) toor@ip-172-31-10-203:~/attack-trees-lab/scripts$ python3 vuln_attack_trees.py
+
+============================================================
+Attack Tree for Vulnerability: VULN-001
+============================================================
+- [OR] Exploit SQL Injection (VULN-001) (p=0.00, impact=0.00, cost=0.00, risk=5.67)
+  - [AND] Bypass Authentication (p=0.60, impact=8.00, cost=30.00, risk=3.06)
+    - [LEAF] Identify Injection Point (p=0.85, impact=6.00, cost=10.00, risk=5.10)
+    - [LEAF] Craft Payload (p=0.80, impact=7.00, cost=15.00, risk=5.60)
+    - [LEAF] Execute Injection (p=0.75, impact=8.00, cost=5.00, risk=6.00)
+  - [AND] Extract Data (p=0.70, impact=9.00, cost=40.00, risk=4.10)
+    - [LEAF] Enumerate Schema (p=0.70, impact=7.00, cost=20.00, risk=4.90)
+    - [LEAF] Extract Credentials (p=0.65, impact=9.00, cost=20.00, risk=5.85)
+
+============================================================
+Attack Tree for Vulnerability: VULN-002
+============================================================
+- [OR] Exploit XSS (VULN-002) (p=0.00, impact=0.00, cost=0.00, risk=4.83)
+  - [AND] Steal Session Cookies (p=0.55, impact=7.50, cost=25.00, risk=2.89)
+    - [LEAF] Inject Script (p=0.80, impact=6.50, cost=10.00, risk=5.20)
+    - [LEAF] Victim Visits Page (p=0.60, impact=6.00, cost=5.00, risk=3.60)
+    - [LEAF] Extract Cookies (p=0.70, impact=7.50, cost=10.00, risk=5.25)
+  - [AND] Phishing Attack (p=0.50, impact=8.00, cost=35.00, risk=2.60)
+    - [LEAF] Create Phishing Page (p=0.75, impact=7.00, cost=15.00, risk=5.25)
+    - [LEAF] Inject Redirect (p=0.65, impact=8.00, cost=20.00, risk=5.20)
+
+============================================================
+Attack Tree for Vulnerability: VULN-003
+============================================================
+- [OR] Exploit Weak Authentication (VULN-003) (p=0.00, impact=0.00, cost=0.00, risk=5.12)
+  - [AND] Brute Force (p=0.55, impact=8.00, cost=40.00, risk=2.86)
+    - [LEAF] Identify Usernames (p=0.70, impact=5.50, cost=10.00, risk=3.85)
+    - [LEAF] Automated Attempts (p=0.65, impact=8.00, cost=30.00, risk=5.20)
+  - [AND] Dictionary Attack (p=0.60, impact=8.50, cost=30.00, risk=3.57)
+    - [LEAF] Obtain Password List (p=0.75, impact=6.00, cost=10.00, risk=4.50)
+    - [LEAF] Test Passwords (p=0.70, impact=8.50, cost=20.00, risk=5.95)
+
+============================================================
+Attack Tree for Vulnerability: VULN-004
+============================================================
+- [OR] Exploit Unencrypted Communication (VULN-004) (p=0.00, impact=0.00, cost=0.00, risk=3.75)
+  - [LEAF] Identify Exploit Technique (p=0.50, impact=5.00, cost=20.00, risk=2.50)
+  - [LEAF] Execute Exploit (p=0.40, impact=6.00, cost=30.00, risk=2.40)
+
+
+============================================================
+Attack Path Analysis
+============================================================
+
+(.venv) toor@ip-172-31-10-203:~/attack-trees-lab/scripts$ python3 attack_path_mapper.py
+
+======================================================================
+Attack Scenarios (Categorized)
+======================================================================
+
+----------------------------------------------------------------------
+high_impact_scenarios
+----------------------------------------------------------------------
+1. Risk Score: 18.72
+   Path: VULN-003 -> VULN-001 -> VULN-004
+   Chain details:
+     - VULN-003 -> VULN-001 (enables) Weak authentication can enable access to SQLi entry points
+     - VULN-001 -> VULN-004 (leverages) SQLi can expose traffic/credentials that benefit from unencrypted channels
+
+2. Risk Score: 15.30
+   Path: VULN-001 -> VULN-004
+   Chain details:
+     - VULN-001 -> VULN-004 (leverages) SQLi can expose traffic/credentials that benefit from unencrypted channels
+
+
+----------------------------------------------------------------------
+multi_stage_scenarios
+----------------------------------------------------------------------
+1. Risk Score: 18.72
+   Path: VULN-003 -> VULN-001 -> VULN-004
+
+2. Risk Score: 15.30
+   Path: VULN-001 -> VULN-004
+
+
+----------------------------------------------------------------------
+privilege_escalation_scenarios
+----------------------------------------------------------------------
+1. Risk Score: 18.72
+   Path: VULN-003 -> VULN-001 -> VULN-004
+
+
+======================================================================
+
+
+============================================================
+Risk Analysis & Remediation Prioritization
+============================================================
+
+(.venv) toor@ip-172-31-10-203:~/attack-trees-lab/scripts$ python3 risk_analyzer.py
+
+=== Remediation Priorities ===
+VULN-003: Weak Authentication | CVSS=7.8 | Criticality=10.00 | Priority=Critical
+VULN-001: SQL Injection | CVSS=8.5 | Criticality=9.72 | Priority=Critical
+VULN-004: Unencrypted Communication | CVSS=7.5 | Criticality=7.14 | Priority=High
+VULN-002: Cross-Site Scripting | CVSS=6.1 | Criticality=5.42 | Priority=Medium
+
+Remediation report generated: ../output/remediation_report.json
+
+
+============================================================
+Remediation Report (JSON)
+============================================================
+
+(.venv) toor@ip-172-31-10-203:~/attack-trees-lab/scripts$ cat ../output/remediation_report.json
+
+{
+  "generated_at": "2026-02-21T17:42:19.482113",
+  "priorities": [
+    {
+      "id": "VULN-003",
+      "type": "Weak Authentication",
+      "severity": "High",
+      "location": "Password policy",
+      "cvss_score": 7.8,
+      "criticality_score": 10.0,
+      "priority_level": "Critical",
+      "recommended_actions": [
+        "Enforce strong password policy",
+        "Implement Multi-Factor Authentication (MFA)",
+        "Enable rate limiting and account lockout policies",
+        "Monitor login anomaly detection"
+      ],
+      "affected_attack_paths": [
+        {
+          "category": "high_impact_scenarios",
+          "risk_score": 18.72,
+          "path": [
+            "VULN-003",
+            "VULN-001",
+            "VULN-004"
+          ]
+        }
+      ]
+    }
+  ]
+}

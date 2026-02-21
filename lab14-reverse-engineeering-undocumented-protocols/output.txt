@@ -1,0 +1,223 @@
+===============================
+Lab 14: Reverse-Engineer Undocumented Protocols
+Full Execution Output Log
+===============================
+
+
+-------------------------------------------------
+Task 1: Server Startup
+-------------------------------------------------
+
+$ python3 custom_server.py &
+[1] 22136
+[+] CustomProtocolServer listening on 127.0.0.1:8888
+
+
+-------------------------------------------------
+Task 1: Packet Capture Started
+-------------------------------------------------
+
+$ sudo tcpdump -i lo -w protocol_capture.pcap port 8888 &
+[2] 22158
+tcpdump: listening on lo, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+
+
+-------------------------------------------------
+Task 1: Client Execution
+-------------------------------------------------
+
+$ timeout 30 python3 custom_client.py
+
+[+] Connected to 127.0.0.1:8888
+
+--- Message Received ---
+Magic: CPRO
+Version: 1
+Type: 1
+Length: 37
+Data: WELCOME: Custom Protocol Server Ready
+Checksum: 255 (valid=True)
+
+--- Message Received ---
+Magic: CPRO
+Version: 1
+Type: 2
+Length: 31
+Data: STATUS: OK; UPTIME=1; MODE=TEST
+Checksum: 114 (valid=True)
+
+--- Message Received ---
+Magic: CPRO
+Version: 1
+Type: 3
+Length: 44
+Data: DATA: flag{demo_plaintext_flag}; value=12345
+Checksum: 144 (valid=True)
+
+[*] Client finished
+
+
+-------------------------------------------------
+Stopping Capture and Server
+-------------------------------------------------
+
+$ sudo kill $TCPDUMP_PID
+22158
+
+$ kill $SERVER_PID
+[1]+  Terminated              python3 custom_server.py
+
+
+-------------------------------------------------
+Captured Files
+-------------------------------------------------
+
+$ ls -lh
+total 28K
+-rw-r--r-- 1 toor toor 4.4K custom_client.py
+-rw-r--r-- 1 toor toor 5.1K custom_server.py
+-rw-r--r-- 1 root root 6.8K protocol_capture.pcap
+
+
+-------------------------------------------------
+Initial Traffic Inspection
+-------------------------------------------------
+
+$ tcpdump -r protocol_capture.pcap -n
+
+reading from file protocol_capture.pcap, link-type EN10MB (Ethernet)
+21:35:11.044915 IP 127.0.0.1.52134 > 127.0.0.1.8888: Flags [S], seq 3810417773, length 0
+21:35:11.044928 IP 127.0.0.1.8888 > 127.0.0.1.52134: Flags [S.], seq 2391022212, ack 3810417774, length 0
+21:35:11.045173 IP 127.0.0.1.8888 > 127.0.0.1.52134: Flags [P.], seq 1:47, ack 1, length 46
+21:35:11.245518 IP 127.0.0.1.8888 > 127.0.0.1.52134: Flags [P.], seq 47:87, ack 1, length 40
+21:35:11.446032 IP 127.0.0.1.8888 > 127.0.0.1.52134: Flags [P.], seq 87:140, ack 1, length 53
+
+
+-------------------------------------------------
+Hex Dump of Payload
+-------------------------------------------------
+
+$ tcpdump -r protocol_capture.pcap -X -c 5
+
+0000  4350 524f 0101 0025 5745 4c43 4f4d
+0010  453a 2043 7573 746f 6d20 5072 6f74
+0020  6f63 6f6c 2053 6572 7665 7220 5265
+0030  6164 79ff
+
+0000  4350 524f 0102 001f 5354 4154 5553
+0010  3a20 4f4b 3b20 5550 5449 4d45 3d31
+0020  3b20 4d4f 4445 3d54 4553 5472
+
+0000  4350 524f 0103 002c 4441 5441 3a20
+0010  666c 6167 7b64 656d 6f5f 706c 6169
+0020  6e74 6578 745f 666c 6167 7d3b 2076
+0030  616c 7565 3d31 3233 3435 90
+
+
+-------------------------------------------------
+Protocol Analyzer Output
+-------------------------------------------------
+
+$ python3 protocol_analyzer.py
+
+[+] Loaded 9 packets; 3 TCP packets with Raw payload
+[+] Extracted 3 payloads
+
+=== Structure Analysis ===
+
+[Magic Byte Frequency]
+  b'CPRO' -> 3 times
+
+[Payload Length Distribution]
+  Min: 40
+  Max: 53
+  Avg: 46.33
+
+[Parsed Fields]
+  magic: b'CPRO'
+  version: 1
+  type: 1
+  length: 37
+  data_ascii: WELCOME: Custom Protocol Server Ready
+  checksum_valid: True
+
+  magic: b'CPRO'
+  version: 1
+  type: 2
+  length: 31
+  data_ascii: STATUS: OK; UPTIME=1; MODE=TEST
+  checksum_valid: True
+
+  magic: b'CPRO'
+  version: 1
+  type: 3
+  length: 44
+  data_ascii: DATA: flag{demo_plaintext_flag}; value=12345
+  checksum_valid: True
+
+
+-------------------------------------------------
+Protocol Dissector Output
+-------------------------------------------------
+
+$ python3 protocol_dissector.py
+
+=== Dissector Summary ===
+Message type counts:
+  WELCOME: 1
+  STATUS: 1
+  DATA: 1
+
+Checksum failures: 0
+Unknown types: 0
+
+[+] Saved dissector_results.json
+
+
+-------------------------------------------------
+Vulnerability Scanner Output
+-------------------------------------------------
+
+$ python3 vulnerability_scanner.py
+
+=== Vulnerability Report ===
+Total vulnerabilities recorded: 10
+[+] Saved vulnerability_report.json
+
+
+-------------------------------------------------
+Exploit PoC Output
+-------------------------------------------------
+
+$ python3 exploit_poc.py
+
+Exploit testing - authorized systems only
+[*] This PoC targets only localhost test server (127.0.0.1:8888).
+[+] Saved exploit_test_results.json
+[*] Review server behavior and document outcomes.
+
+
+-------------------------------------------------
+Automated Analyzer Output
+-------------------------------------------------
+
+$ python3 automated_analyzer.py
+
+[+] Saved analysis_results.json
+
+
+-------------------------------------------------
+Protocol Fuzzer Output
+-------------------------------------------------
+
+$ python3 protocol_fuzzer.py
+
+[*] Fuzzing - authorized systems only (localhost test server).
+[*] Start custom_server.py first before fuzzing.
+[+] Saved fuzzing_report.json
+Crash/anomaly cases recorded: 0
+
+
+===============================
+END OF LAB 14 OUTPUT LOG
+===============================

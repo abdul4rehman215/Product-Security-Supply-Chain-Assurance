@@ -44,13 +44,17 @@ lab15-detect-protocol-weaknesses-with-crafted-packet-tests/
 ├── output.txt
 ├── interview_qna.md
 ├── troubleshooting.md
-├── protocol_server.py
-├── packet_crafter.py
-├── automated_scanner.py
-├── traffic_analyzer.py
-├── test_config.json
-└── scan_report.json
-````
+│   
+├── scripts/
+│   ├── protocol_server.py
+│   ├── packet_crafter.py
+│   ├── automated_scanner.py
+│   ├── test_config.json
+│   └── traffic_analyzer.py
+│
+├── reports/   
+│   └── scan_report.json
+```
 
 > Notes:
 >

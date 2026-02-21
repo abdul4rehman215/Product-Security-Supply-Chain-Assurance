@@ -1,0 +1,10 @@
+=== Boofuzz Fuzzing Summary Report ===
+Timestamp: 20260221_154922
+Target: 127.0.0.1:8080
+
+Estimated Test Cases Executed: 175
+Crashes Detected (server-side): 0
+
+Notes:
+- This simple demo server may not crash easily.
+- Check fuzzing.log for detailed execution logs.

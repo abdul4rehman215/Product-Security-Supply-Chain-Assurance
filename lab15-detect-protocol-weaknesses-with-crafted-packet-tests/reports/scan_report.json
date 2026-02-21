@@ -1,0 +1,27 @@
+[
+  {
+    "type": "Hidden admin command",
+    "severity": "CRITICAL",
+    "description": "Command 999 returns plaintext credentials"
+  },
+  {
+    "type": "Overflow condition",
+    "severity": "HIGH",
+    "description": "Length > 1000 triggers overflow behavior"
+  },
+  {
+    "type": "Weak input handling",
+    "severity": "MEDIUM",
+    "description": "Echo endpoint reflects raw payload bytes"
+  },
+  {
+    "type": "Injection-like payloads",
+    "severity": "MEDIUM",
+    "description": "Protocol accepts and echoes suspicious strings"
+  },
+  {
+    "type": "Fuzzing observations",
+    "severity": "LOW",
+    "description": "Server responds to random commands without lockout"
+  }
+]

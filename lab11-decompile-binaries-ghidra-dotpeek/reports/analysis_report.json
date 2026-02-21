@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-02-21T13:51:02.418304",
+  "summary": {
+    "total_targets": 2,
+    "successful": 1,
+    "failed": 1
+  },
+  "results": [
+    {
+      "binary": "/home/toor/lab11-binary-analysis/VulnerableApp.exe",
+      "project_name": "AutoAnalysis_VulnerableApp.exe",
+      "status": "failed",
+      "error": "Headless analysis timed out",
+      "analyzed_at": "2026-02-21T13:50:59.993441"
+    },
+    {
+      "binary": "/home/toor/lab11-binary-analysis/vulnerable_app",
+      "project_name": "AutoAnalysis_vulnerable_app",
+      "command": [
+        "/home/toor/lab11-binary-analysis/ghidra/support/analyzeHeadless",
+        "/home/toor/lab11-binary-analysis/automated_analysis/ghidra_projects",
+        "AutoAnalysis_vulnerable_app",
+        "-import",
+        "/home/toor/lab11-binary-analysis/vulnerable_app",
+        "-analysisTimeoutPerFile",
+        "300",
+        "-overwrite",
+        "-scriptPath",
+        "/home/toor/lab11-binary-analysis/scripts",
+        "-postScript",
+        "FindVulnerabilities.java"
+      ],
+      "return_code": 0,
+      "stdout": "INFO  Using log config file: /home/toor/lab11-binary-analysis/ghidra/support/analyzeHeadlessLog.xml\nINFO  Headless analyzer logging to: /home/toor/lab11-binary-analysis/automated_analysis/ghidra_projects/AutoAnalysis_vulnerable_app/application.log\nINFO  Importing: /home/toor/lab11-binary-analysis/vulnerable_app\nINFO  Analyzing program: vulnerable_app\nINFO  Analysis completed: vulnerable_app\n=== Vulnerability Analysis ===\nProgram: vulnerable_app\n\n[1] Searching for dangerous functions and references...\nFound symbol: system at 00101060\n  Ref 1: from 0010127e\nFound symbol: strcpy at 00101030\n  Ref 1: from 001011f6\nSymbol not found in table: gets (may be statically linked/inlined).\nSymbol not found in table: strcat (may be statically linked/inlined).\nSymbol not found in table: sprintf (may be statically linked/inlined).\nSymbol not found in table: vsprintf (may be statically linked/inlined).\n\n[2] Searching for potential format string issues...\nChecking callsites for: printf at 00101040\n  Callsite: 0010121a :: CALL printf\n    Note: Manual review needed to confirm if format string is attacker-controlled.\n  Callsite: 0010123d :: CALL printf\n    Note: Manual review needed to confirm if format string is attacker-controlled.\n  Callsite: 00101255 :: CALL printf\n    Note: Manual review needed to confirm if format string is attacker-controlled.\n\n[3] Searching for stack buffers / local allocations (best-effort)...\nFunction: buffer_overflow_vuln :: Local variable 'local_58' type=char[64] size=64\n  Note: Review for unsafe copies into this buffer.\nFunction: main :: Local variable 'local_118' type=char[256] size=256\n  Note: Review for unsafe copies into this buffer.\n=== Analysis Complete ===\nINFO  Headless analysis finished.\n",
+      "stderr": "",
+      "status": "success",
+      "analyzed_at": "2026-02-21T13:50:32.220612",
+      "quick_findings": [
+        "Possible reference to strcpy found in headless output/logs",
+        "Possible reference to system found in headless output/logs",
+        "Possible reference to printf found in headless output/logs"
+      ]
+    }
+  ]
+}

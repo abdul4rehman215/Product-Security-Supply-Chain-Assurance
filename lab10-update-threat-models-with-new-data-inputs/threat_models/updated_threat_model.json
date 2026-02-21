@@ -1,0 +1,11 @@
+python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+print('Threat Model Summary:')
+print(f\" Version: {data['metadata']['version']}\")
+print(f\" Attack Patterns: {len(data['attack_patterns'])}\")
+print(f\" Last Updated: {data['metadata']['last_updated']}\")"
+Threat Model Summary:
+ Version: 1.0
+ Attack Patterns: 10
+ Last Updated: 2026-02-21T16:49:07.382914

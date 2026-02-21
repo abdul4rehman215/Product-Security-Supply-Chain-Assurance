@@ -1,0 +1,271 @@
+# ------------------------------------------------------------
+# Task 1: Explore Scapy Layers
+# ------------------------------------------------------------
+
+toor@ip-172-31-10-196:~$ sudo python3 explore_layers.py
+
+============================================================
+Exploring TCP Layer Structure
+============================================================
+
+--- TCP Packet Structure (show) ---
+###[ TCP ]###
+  sport     = ftp_data
+  dport     = http
+  seq       = 0
+  ack       = 0
+  dataofs   = None
+  reserved  = 0
+  flags     = S
+  window    = 8192
+  chksum    = None
+  urgptr    = 0
+  options   = []
+
+--- TCP fields_desc Details ---
+Field Name: sport | Type: ShortEnumField
+Field Name: dport | Type: ShortEnumField
+Field Name: seq | Type: IntField
+Field Name: ack | Type: IntField
+Field Name: dataofs | Type: BitField
+Field Name: reserved | Type: BitField
+Field Name: flags | Type: FlagsField
+Field Name: window | Type: ShortField
+Field Name: chksum | Type: XShortField
+Field Name: urgptr | Type: ShortField
+Field Name: options | Type: TCPOptionsField
+
+--- Sample IP/TCP Packet Layers ---
+###[ IP ]###
+  version   = 4
+  ihl       = None
+  tos       = 0x0
+  len       = None
+  id        = 1
+  flags     =
+  frag      = 0
+  ttl       = 64
+  proto     = tcp
+  chksum    = None
+  src       = 127.0.0.1
+  dst       = 127.0.0.1
+###[ TCP ]###
+     sport     = ftp_data
+     dport     = http
+     seq       = 0
+     ack       = 0
+     dataofs   = None
+     reserved  = 0
+     flags     = S
+     window    = 8192
+     chksum    = None
+     urgptr    = 0
+     options   = []
+
+--- Packet Summary ---
+IP / TCP 127.0.0.1:ftp_data > 127.0.0.1:http S
+
+============================================================
+Exploring Field Types
+============================================================
+
+--- FieldTest Packet Structure ---
+###[ FieldTest ]###
+  byte_field = 10
+  short_field= 1000
+  int_field  = 123456
+  xint_field = 0x1234abcd
+  str_field  = 'hello'
+  fixed_str  = 'test'
+
+--- Raw Bytes ---
+b'\n\x03\xe8\x00\x01\xe2@\x124\xab\xcdhello' + b'test\x00\x00\x00\x00'
+
+
+# ------------------------------------------------------------
+# Task 2: SecureComm Protocol Test
+# ------------------------------------------------------------
+
+toor@ip-172-31-10-196:~$ sudo python3 secure_comm_protocol.py
+
+============================================================
+Testing SecureComm Protocol
+============================================================
+
+--- HELLO Packet ---
+###[ IP ]###
+  proto     = udp
+###[ UDP ]###
+  dport     = 9999
+###[ SecureComm ]###
+  magic     = 0x53434d4d
+  version   = 1
+  msg_type  = HELLO
+  sequence  = 1
+  payload_len= 11
+  checksum  = 0x05a6
+###[ Raw ]###
+  load      = b'Hello Server'
+
+--- DATA Packet ---
+###[ SecureComm ]###
+  msg_type  = DATA
+  sequence  = 2
+  payload_len= 11
+  checksum  = 0x052e
+###[ Raw ]###
+  load      = b'Sample Data'
+
+Packets sent to localhost:9999
+
+
+# ------------------------------------------------------------
+# Task 3: AuthProtocol Session Creation
+# ------------------------------------------------------------
+
+toor@ip-172-31-10-196:~$ sudo python3 auth_protocol.py
+
+============================================================
+Creating AuthProtocol Session Packets
+============================================================
+
+--- AUTH_REQUEST Packet ---
+###[ AuthProtocol ]###
+  magic      = 0x41555448
+  cmd        = AUTH_REQUEST
+  session_id = 2882400001
+  data_len   = 16
+  crc        = 0x2f9a
+
+--- AUTH_RESPONSE Packet ---
+###[ AuthProtocol ]###
+  cmd        = AUTH_RESPONSE
+  data_len   = 7
+  crc        = 0x0c41
+
+--- SESSION_DATA Packet ---
+###[ AuthProtocol ]###
+  cmd        = SESSION_DATA
+  data_len   = 4
+  crc        = 0xb1f8
+
+NOTE: These packets are built for demonstration and analysis.
+
+
+# ------------------------------------------------------------
+# Task 4: Start SecureComm Test Server
+# ------------------------------------------------------------
+
+toor@ip-172-31-10-196:~$ sudo python3 protocol_server.py &
+
+[1] 28341
+[+] SecureComm UDP test server listening on 127.0.0.1:9999
+
+
+# ------------------------------------------------------------
+# Run Protocol Tester
+# ------------------------------------------------------------
+
+toor@ip-172-31-10-196:~$ sudo python3 protocol_tester.py
+
+============================================================
+Testing SecureComm Protocol
+============================================================
+
+[>] Sending HELLO (type=1) seq=1
+[+] Response received
+
+[>] Sending DATA (type=2) seq=2
+[+] Response received
+
+[>] Sending ACK (type=3) seq=3
+[+] Response received
+
+[>] Sending CLOSE (type=4) seq=4
+[+] Response received
+
+============================================================
+Fuzz Testing SecureComm Protocol
+============================================================
+
+[>] Sending fuzz case: Invalid Magic
+[-] No response (expected in some fuzz cases)
+
+[>] Sending fuzz case: Invalid Version
+[+] Response received
+
+[>] Sending fuzz case: Unknown Msg Type
+[+] Response received
+
+[>] Sending fuzz case: Large Payload
+[+] Response received
+
+============================================================
+Test Report
+============================================================
+Total Tests: 8
+Success: 7
+Fail: 1
+Success Rate: 87.50%
+
+--- Detailed Results ---
+PASS | HELLO                     | Response received
+PASS | DATA                      | Response received
+PASS | ACK                       | Response received
+PASS | CLOSE                     | Response received
+FAIL | FUZZ: Invalid Magic       | No response
+PASS | FUZZ: Invalid Version     | Response received
+PASS | FUZZ: Unknown Msg Type    | Response received
+PASS | FUZZ: Large Payload       | Response received
+
+
+# ------------------------------------------------------------
+# Traffic Capture
+# ------------------------------------------------------------
+
+toor@ip-172-31-10-196:~$ sudo tcpdump -i lo -w custom_protocols.pcap port 9999 &
+[2] 28612
+tcpdump: listening on lo, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+
+toor@ip-172-31-10-196:~$ sudo pkill tcpdump
+
+toor@ip-172-31-10-196:~$ ls -lh custom_protocols.pcap
+-rw-r--r-- 1 tcpdump tcpdump 34K Aug 18 11:02 custom_protocols.pcap
+
+
+# ------------------------------------------------------------
+# PCAP Analysis
+# ------------------------------------------------------------
+
+toor@ip-172-31-10-196:~$ sudo python3 packet_analyzer.py
+
+============================================================
+Loading PCAP: custom_protocols.pcap
+============================================================
+[+] Total packets loaded: 16
+
+============================================================
+Custom Protocol PCAP Analysis Report
+============================================================
+Total packets in capture: 16
+SecureComm packets detected: 16
+
+--- Packets per Protocol ---
+SecureComm: 16
+
+--- Anomalies Found ---
+Packet #0009 [SecureComm] -> Invalid version: 99
+Packet #0011 [SecureComm] -> Invalid msg_type: 99
+
+--- Statistics ---
+SecureComm anomaly rate: 12.50%
+
+
+# ------------------------------------------------------------
+# Wireshark Attempt (CLI Cloud Environment)
+# ------------------------------------------------------------
+
+toor@ip-172-31-10-196:~$ wireshark custom_protocols.pcap &
+
+[3] 28904
+** (wireshark:28904) 11:03:12.127890 [GUI WARNING] -- Cannot open display:

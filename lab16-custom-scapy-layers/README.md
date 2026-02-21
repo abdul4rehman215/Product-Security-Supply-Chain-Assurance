@@ -186,12 +186,12 @@ Then analyzed the PCAP using a custom script:
 
 ## ✅ Verification Checklist
 
-✔ Custom layers bind correctly to UDP/TCP
-✔ `show()` displays readable protocol fields
-✔ `post_build()` auto-calculates lengths/checksums
-✔ UDP server receives and responds
-✔ PCAP capture contains expected SecureComm packets
-✔ Packet analyzer identifies protocol + flags anomalies
+- ✔ Custom layers bind correctly to UDP/TCP
+- ✔ `show()` displays readable protocol fields
+- ✔ `post_build()` auto-calculates lengths/checksums
+- ✔ UDP server receives and responds
+- ✔ PCAP capture contains expected SecureComm packets
+- ✔ Packet analyzer identifies protocol + flags anomalies
 
 ---
 

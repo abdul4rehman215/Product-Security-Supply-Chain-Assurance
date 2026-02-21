@@ -1,0 +1,227 @@
+============================================================
+Lab 17: Fuzz Network Protocols with Boofuzz
+Complete Execution Output
+============================================================
+
+------------------------------------------------------------
+Task 1: Environment Setup & Installation
+------------------------------------------------------------
+
+toor@ip-172-31-10-184:~$ mkdir -p ~/boofuzz-lab
+toor@ip-172-31-10-184:~$ cd ~/boofuzz-lab
+toor@ip-172-31-10-184:~/boofuzz-lab$
+
+toor@ip-172-31-10-184:~/boofuzz-lab$ python3 -m venv boofuzz-env
+# (no output)
+
+toor@ip-172-31-10-184:~/boofuzz-lab$ source boofuzz-env/bin/activate
+(boofuzz-env) toor@ip-172-31-10-184:~/boofuzz-lab$
+
+(boofuzz-env) toor@ip-172-31-10-184:~/boofuzz-lab$ pip install --upgrade pip
+Looking in indexes: http://pypi.ace-research.openai.org/simple
+Requirement already satisfied: pip in ./boofuzz-env/lib/python3.12/site-packages (24.0)
+Collecting pip
+  Downloading pip-25.0.1-py3-none-any.whl (2.1 MB)
+Installing collected packages: pip
+  Attempting uninstall: pip
+    Found existing installation: pip 24.0
+    Uninstalling pip-24.0:
+      Successfully uninstalled pip-24.0
+Successfully installed pip-25.0.1
+
+(boofuzz-env) toor@ip-172-31-10-184:~/boofuzz-lab$ pip install boofuzz
+Looking in indexes: http://pypi.ace-research.openai.org/simple
+Collecting boofuzz
+Downloading boofuzz-0.4.2-py3-none-any.whl
+Collecting attrs>=20.3.0
+Collecting click
+Collecting colorama
+Collecting Flask
+Collecting gevent
+Collecting psutil
+Collecting pydot
+Collecting pyserial
+Collecting tornado
+Collecting Werkzeug>=3.0.0
+Collecting requests
+Collecting websocket-client
+Collecting zope.event
+Collecting zope.interface
+Successfully installed Flask-3.0.3 Werkzeug-3.0.6 attrs-25.1.0 boofuzz-0.4.2 click-8.1.8 colorama-0.4.6 gevent-24.11.1 psutil-6.1.1 pydot-3.0.4 pyserial-3.5 requests-2.32.3 tornado-6.4.2 websocket-client-1.8.0 zope.event-5.0 zope.interface-7.2
+
+------------------------------------------------------------
+Boofuzz Verification
+------------------------------------------------------------
+
+(boofuzz-env) toor@ip-172-31-10-184:~/boofuzz-lab$ python3 verify_boofuzz.py
+
+Boofuzz successfully imported.
+Boofuzz version: 0.4.2
+Session object created successfully.
+
+------------------------------------------------------------
+File Structure Verification
+------------------------------------------------------------
+
+(boofuzz-env) toor@ip-172-31-10-184:~/boofuzz-lab$ ls -la
+
+total 44
+drwxr-xr-x 3 toor toor 4096 Feb 21 15:48 .
+drwxr-xr-x 9 toor toor 4096 Feb 21 15:47 ..
+drwxr-xr-x 5 toor toor 4096 Feb 21 15:47 boofuzz-env
+-rw-r--r-- 1 toor toor 1401 Feb 21 15:48 boofuzz_config.py
+-rw-r--r-- 1 toor toor 8732 Feb 21 15:48 protocol_fuzzer.py
+-rw-r--r-- 1 toor toor 2419 Feb 21 15:48 test_server.py
+-rwxr-xr-x 1 toor toor  792 Feb 21 15:47 verify_boofuzz.py
+
+------------------------------------------------------------
+Manual Fuzzing Campaign Execution
+------------------------------------------------------------
+
+(boofuzz-env) toor@ip-172-31-10-184:~/boofuzz-lab$ python3 test_server.py &
+[1] 21943
+Server PID: 21943
+2026-02-21 15:49:02,118 - INFO - Server started on 127.0.0.1:8080
+
+(boofuzz-env) toor@ip-172-31-10-184:~/boofuzz-lab$ python3 protocol_fuzzer.py
+
+2026-02-21 15:49:04,390 - INFO - ProtocolFuzzer initialized.
+2026-02-21 15:49:04,390 - INFO - Starting fuzzing campaign...
+
+[2026-02-21 15:49:04,712] Info: Web interface can be found at http://127.0.0.1:26000
+[2026-02-21 15:49:04,713] Info: Starting fuzzing session
+
+Test Case: 1     Path: hello_message
+Test Case: 2     Path: hello_message
+Test Case: 3     Path: hello_message
+Test Case: 4     Path: hello_message -> get_message
+Test Case: 5     Path: hello_message -> get_message
+Test Case: 6     Path: hello_message -> set_message
+Test Case: 7     Path: hello_message -> set_message
+...
+Test Case: 173   Path: hello_message -> set_message
+Test Case: 174   Path: hello_message -> get_message
+Test Case: 175   Path: hello_message
+
+[2026-02-21 15:49:22,914] Info: Fuzzing session completed
+2026-02-21 15:49:22,916 - INFO - Summary report written to: fuzzing_summary_20260221_154922.txt
+2026-02-21 15:49:22,916 - INFO - Fuzzing campaign completed.
+
+(boofuzz-env) toor@ip-172-31-10-184:~/boofuzz-lab$ kill 21943
+[1]+  Terminated              python3 test_server.py
+
+------------------------------------------------------------
+Fuzzing Summary Report
+------------------------------------------------------------
+
+=== Boofuzz Fuzzing Summary Report ===
+Timestamp: 20260221_154922
+Target: 127.0.0.1:8080
+
+Estimated Test Cases Executed: 175
+Crashes Detected (server-side): 0
+
+Notes:
+- This simple demo server may not crash easily.
+- Check fuzzing.log for detailed execution logs.
+
+------------------------------------------------------------
+Automated Fuzzing Campaign
+------------------------------------------------------------
+
+(boofuzz-env) toor@ip-172-31-10-184:~/boofuzz-lab$ python3 automated_fuzzer.py
+
+2026-02-21 15:52:11,404 - INFO - Logging initialized.
+2026-02-21 15:52:11,406 - INFO - Target server started successfully.
+2026-02-21 15:52:11,406 - INFO - Running fuzzing for protocol: http_like
+...
+2026-02-21 15:52:20,912 - Info: Fuzzing session completed
+2026-02-21 15:52:20,915 - INFO - Analysis complete for protocol: http_like
+2026-02-21 15:52:20,915 - INFO - Running fuzzing for protocol: binary
+...
+2026-02-21 15:52:29,602 - Info: Fuzzing session completed
+2026-02-21 15:52:29,605 - INFO - Analysis complete for protocol: binary
+2026-02-21 15:52:29,607 - INFO - Reports written: vulnerability_report_20260221_155229.txt and vulnerability_report_20260221_155229.json
+2026-02-21 15:52:29,607 - INFO - Stopping target server...
+2026-02-21 15:52:29,612 - INFO - Target server stopped.
+
+------------------------------------------------------------
+Generated Vulnerability Report (TXT)
+------------------------------------------------------------
+
+=== Vulnerability Report ===
+Generated: 20260221_155229
+
+Target: {'host': '127.0.0.1', 'port': 8080}
+
+=== Statistics ===
+total_estimated_test_cases: Unknown
+total_crashes_detected: 0
+crash_rate_percent: Unknown
+
+=== Protocol Results ===
+
+--- http_like ---
+Estimated test cases: None
+Crashes detected: 0
+Vulnerabilities: None detected
+
+--- binary ---
+Estimated test cases: None
+Crashes detected: 0
+Vulnerabilities: None detected
+
+------------------------------------------------------------
+Generated Vulnerability Report (JSON)
+------------------------------------------------------------
+
+{
+  "started_at": "2026-02-21T15:52:11.405817",
+  "target": {
+    "host": "127.0.0.1",
+    "port": 8080
+  },
+  "protocols": {
+    "http_like": {
+      "protocol": "http_like",
+      "estimated_test_cases": null,
+      "crashes_detected": 0,
+      "vulnerabilities": []
+    },
+    "binary": {
+      "protocol": "binary",
+      "estimated_test_cases": null,
+      "crashes_detected": 0,
+      "vulnerabilities": []
+    }
+  },
+  "errors": [],
+  "finished_at": "2026-02-21T15:52:29.606818",
+  "statistics": {
+    "total_estimated_test_cases": "Unknown",
+    "total_crashes_detected": 0,
+    "crash_rate_percent": "Unknown"
+  }
+}
+
+------------------------------------------------------------
+Results Analysis Script Output
+------------------------------------------------------------
+
+=== Fuzzing Results Summary ===
+Reports loaded: 1
+Total estimated test cases: Unknown
+Total crashes detected: 0
+Crash rate percent: Unknown
+Unique vulnerabilities: 0
+
+=== Crash Patterns by Protocol ===
+binary: 0
+http_like: 0
+
+=== Vulnerabilities (Top Entries) ===
+None detected.
+
+============================================================
+End of Lab 17 Output
+============================================================

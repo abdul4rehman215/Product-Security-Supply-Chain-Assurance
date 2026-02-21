@@ -1,0 +1,6 @@
+2026-02-21 16:54:18,921 - INFO - Starting threat model update cycle...
+2026-02-21 16:54:18,923 - INFO - Created backup: ../data/threat-models/backups/threat_model_20260221_165418.json
+2026-02-21 16:54:18,929 - INFO - No alerts generated.
+2026-02-21 16:54:18,933 - INFO - Update completed.
+2026-02-21 16:54:18,933 - INFO - Techniques: 10, IPs: 4, Domains: 3
+2026-02-21 16:54:18,936 - INFO - Saved metrics dashboard to ../output/metrics.json

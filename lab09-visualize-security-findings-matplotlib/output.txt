@@ -1,0 +1,184 @@
+Lab 09: Visualize Security Findings with Matplotlib
+Environment: Ubuntu 24.04.x (Cloud VM)
+User: toor
+Working Directory: ~/security_viz_lab
+
+============================================================
+Task 1: Environment Setup and Data Preparation
+============================================================
+
+toor@ip-172-31-10-219:~$ mkdir -p ~/security_viz_lab/{data,scripts,outputs}
+toor@ip-172-31-10-219:~$ cd ~/security_viz_lab
+toor@ip-172-31-10-219:~/security_viz_lab$ ls -la
+total 24
+drwxr-xr-x 5 toor toor 4096 Feb 21 16:10 .
+drwxr-x--- 9 toor toor 4096 Feb 21 16:10 ..
+drwxr-xr-x 2 toor toor 4096 Feb 21 16:10 data
+drwxr-xr-x 2 toor toor 4096 Feb 21 16:10 outputs
+drwxr-xr-x 2 toor toor 4096 Feb 21 16:10 scripts
+
+toor@ip-172-31-10-219:~/security_viz_lab$ python3 --version
+Python 3.12.3
+
+toor@ip-172-31-10-219:~/security_viz_lab$ pip3 install matplotlib pandas numpy seaborn
+Requirement already satisfied: matplotlib (3.8.2)
+Requirement already satisfied: pandas (2.2.2)
+Requirement already satisfied: numpy (2.0.1)
+Requirement already satisfied: seaborn (0.13.2)
+...
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager.
+
+------------------------------------------------------------
+Data Verification
+------------------------------------------------------------
+
+toor@ip-172-31-10-219:~/security_viz_lab$ ls -lh data/
+total 8.0K
+-rw-r--r-- 1 toor toor  741 Feb 21 16:13 security_events.csv
+-rw-r--r-- 1 toor toor  335 Feb 21 16:14 vulnerabilities.csv
+
+toor@ip-172-31-10-219:~/security_viz_lab$ head -5 data/security_events.csv
+timestamp,event_type,severity,source_ip,port,protocol,action,country
+2024-01-15 08:30:15,login_attempt,medium,192.168.1.100,22,SSH,blocked,US
+2024-01-15 08:31:22,malware_detection,high,203.0.113.45,80,HTTP,quarantined,CN
+2024-01-15 08:32:10,port_scan,medium,198.51.100.25,443,HTTPS,blocked,RU
+2024-01-15 08:33:45,ddos_attack,critical,203.0.113.67,80,HTTP,blocked,CN
+
+============================================================
+Task 2: Basic Security Visualizations
+============================================================
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ chmod +x basic_viz.py
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ python3 basic_viz.py
+Generated: outputs/event_pie_chart.png
+Generated: outputs/severity_bar_chart.png
+Basic visualizations created successfully!
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ ls -lh ../outputs/
+total 356K
+-rw-r--r-- 1 toor toor 183K Feb 21 16:17 event_pie_chart.png
+-rw-r--r-- 1 toor toor 169K Feb 21 16:17 severity_bar_chart.png
+
+============================================================
+Task 3: Advanced Time-Series Analysis
+============================================================
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ chmod +x timeline_viz.py geo_viz.py
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ python3 timeline_viz.py
+Generated: outputs/timeline_analysis.png
+Generated: outputs/severity_timeline.png
+Timeline analysis visualizations completed!
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ python3 geo_viz.py
+Generated: outputs/geo_threats.png
+Generated: outputs/protocol_analysis.png
+Geographic threat and protocol analysis completed!
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ ls -lh ../outputs/
+total 1.1M
+-rw-r--r-- 1 toor toor 183K Feb 21 16:17 event_pie_chart.png
+-rw-r--r-- 1 toor toor 169K Feb 21 16:17 severity_bar_chart.png
+-rw-r--r-- 1 toor toor 188K Feb 21 16:22 timeline_analysis.png
+-rw-r--r-- 1 toor toor 210K Feb 21 16:22 severity_timeline.png
+-rw-r--r-- 1 toor toor 131K Feb 21 16:23 geo_threats.png
+-rw-r--r-- 1 toor toor 124K Feb 21 16:23 protocol_analysis.png
+
+Note:
+Dataset timestamps are between 08:30–08:39.
+Timeline concentrated around hour 8 — expected behavior.
+
+============================================================
+Task 4: Vulnerability Assessment Dashboard
+============================================================
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ chmod +x vuln_dashboard.py
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ python3 vuln_dashboard.py
+Generated: outputs/vuln_dashboard.png
+Vulnerability dashboard created successfully!
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ ls -lh ../outputs/vuln_dashboard.png
+-rw-r--r-- 1 toor toor 318K Feb 21 16:26 ../outputs/vuln_dashboard.png
+
+============================================================
+Task 5: Automated Security Report Generator
+============================================================
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ chmod +x report_generator.py
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ python3 report_generator.py
+Report generated successfully: ../outputs/security_report.pdf
+Security PDF report generation completed!
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ ls -lh ../outputs/security_report.pdf
+-rw-r--r-- 1 toor toor 218K Feb 21 16:29 ../outputs/security_report.pdf
+
+------------------------------------------------------------
+Text-Based Summary Report
+------------------------------------------------------------
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ chmod +x stats_summary.py
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ python3 stats_summary.py
+
+SECURITY SUMMARY REPORT
+============================================================
+Generated: 2026-02-21 16:31:12
+
+SECURITY EVENTS OVERVIEW
+------------------------------------------------------------
+Total Events: 10
+Critical Events: 3
+High Severity Events: 3
+Blocked Events: 7
+Quarantined Events: 2
+Allowed Events: 1
+
+Top Event Types:
+  - login_attempt: 2
+  - malware_detection: 2
+  - port_scan: 2
+  - ddos_attack: 2
+  - unauthorized_access: 1
+
+Top Threat Countries:
+  - RU: 4
+  - CN: 4
+  - US: 2
+
+Top Targeted Ports:
+  - 80: 3
+  - 443: 3
+  - 22: 2
+  - 3389: 1
+  - 21: 1
+
+VULNERABILITY OVERVIEW
+------------------------------------------------------------
+Total Vulnerabilities: 8
+Open Vulnerabilities: 5
+Patched Vulnerabilities: 2
+Mitigated Vulnerabilities: 1
+Average CVSS Score: 7.43
+Max CVSS Score: 9.80
+
+Saved summary to: ../outputs/security_summary.txt
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ ls -lh ../outputs/security_summary.txt
+-rw-r--r-- 1 toor toor 819 Feb 21 16:31 ../outputs/security_summary.txt
+
+============================================================
+Final Output Verification
+============================================================
+
+toor@ip-172-31-10-219:~/security_viz_lab/scripts$ ls -lh ../outputs/
+total 1.9M
+-rw-r--r-- 1 toor toor 183K Feb 21 16:17 event_pie_chart.png
+-rw-r--r-- 1 toor toor 169K Feb 21 16:17 severity_bar_chart.png
+-rw-r--r-- 1 toor toor 188K Feb 21 16:22 timeline_analysis.png
+-rw-r--r-- 1 toor toor 210K Feb 21 16:22 severity_timeline.png
+-rw-r--r-- 1 toor toor 131K Feb 21 16:23 geo_threats.png
+-rw-r--r-- 1 toor toor 124K Feb 21 16:23 protocol_analysis.png
+-rw-r--r-- 1 toor toor 318K Feb 21 16:26 vuln_dashboard.png
+-rw-r--r-- 1 toor toor 218K Feb 21 16:29 security_report.pdf
+-rw-r--r-- 1 toor toor 819  Feb 21 16:31 security_summary.txt
+
+All expected outputs successfully generated.

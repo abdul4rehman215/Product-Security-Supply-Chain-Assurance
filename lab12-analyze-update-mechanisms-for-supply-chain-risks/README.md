@@ -48,7 +48,6 @@ lab12-analyze-update-mechanisms-for-supply-chain-risks/
 │   ├── update_monitor.py
 │   ├── tls_analyzer.py
 │   └── supply_chain_auditor.py
-├── output.txt
 └── reports/
 ├── package_security_report.json
 ├── update_traffic_report.json

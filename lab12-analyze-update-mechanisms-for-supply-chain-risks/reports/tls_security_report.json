@@ -1,0 +1,124 @@
+{
+    "timestamp": "2026-02-21T14:24:10.901122+00:00",
+    "servers_analyzed": 4,
+    "high_severity": [],
+    "medium_severity": [
+        {
+            "hostname": "github.com",
+            "port": 443,
+            "timestamp": "2026-02-21T14:24:10.694201+00:00",
+            "tls_version": "TLSv1.3",
+            "cipher": {
+                "name": "TLS_AES_128_GCM_SHA256",
+                "protocol": "TLSv1.3",
+                "secret_bits": 128
+            },
+            "certificate": {
+                "subject": [],
+                "issuer": [],
+                "notBefore": "Jan  7 00:00:00 2026 GMT",
+                "notAfter": "Feb  6 23:59:59 2027 GMT",
+                "subjectAltName": [
+                    [
+                        "DNS",
+                        "github.com"
+                    ],
+                    [
+                        "DNS",
+                        "www.github.com"
+                    ]
+                ]
+            },
+            "issues": [
+                "Cipher may not provide forward secrecy: TLS_AES_128_GCM_SHA256"
+            ],
+            "severity": "MEDIUM",
+            "status": "OK"
+        }
+    ],
+    "low_severity": [
+        {
+            "hostname": "archive.ubuntu.com",
+            "port": 443,
+            "timestamp": "2026-02-21T14:24:09.891001+00:00",
+            "tls_version": "TLSv1.2",
+            "cipher": {
+                "name": "ECDHE-RSA-AES256-GCM-SHA384",
+                "protocol": "TLSv1.2",
+                "secret_bits": 256
+            },
+            "certificate": {
+                "subject": [],
+                "issuer": [],
+                "notBefore": "Nov  1 00:00:00 2025 GMT",
+                "notAfter": "Nov 30 23:59:59 2026 GMT",
+                "subjectAltName": [
+                    [
+                        "DNS",
+                        "archive.ubuntu.com"
+                    ]
+                ]
+            },
+            "issues": [],
+            "severity": "LOW",
+            "status": "OK"
+        },
+        {
+            "hostname": "security.ubuntu.com",
+            "port": 443,
+            "timestamp": "2026-02-21T14:24:10.212312+00:00",
+            "tls_version": "TLSv1.2",
+            "cipher": {
+                "name": "ECDHE-RSA-AES256-GCM-SHA384",
+                "protocol": "TLSv1.2",
+                "secret_bits": 256
+            },
+            "certificate": {
+                "subject": [],
+                "issuer": [],
+                "notBefore": "Nov  1 00:00:00 2025 GMT",
+                "notAfter": "Nov 30 23:59:59 2026 GMT",
+                "subjectAltName": [
+                    [
+                        "DNS",
+                        "security.ubuntu.com"
+                    ]
+                ]
+            },
+            "issues": [],
+            "severity": "LOW",
+            "status": "OK"
+        },
+        {
+            "hostname": "pypi.org",
+            "port": 443,
+            "timestamp": "2026-02-21T14:24:10.521019+00:00",
+            "tls_version": "TLSv1.3",
+            "cipher": {
+                "name": "TLS_AES_256_GCM_SHA384",
+                "protocol": "TLSv1.3",
+                "secret_bits": 256
+            },
+            "certificate": {
+                "subject": [],
+                "issuer": [],
+                "notBefore": "Dec 10 00:00:00 2025 GMT",
+                "notAfter": "Mar 10 23:59:59 2026 GMT",
+                "subjectAltName": [
+                    [
+                        "DNS",
+                        "pypi.org"
+                    ],
+                    [
+                        "DNS",
+                        "files.pythonhosted.org"
+                    ]
+                ]
+            },
+            "issues": [],
+            "severity": "LOW",
+            "status": "OK"
+        }
+    ],
+    "all_results": []
+}

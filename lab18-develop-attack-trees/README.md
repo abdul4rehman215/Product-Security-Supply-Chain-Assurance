@@ -57,7 +57,7 @@ lab18-develop-attack-trees/
 │   ├── attack_path_mapper.py
 │   └── risk_analyzer.py
 │
-├── output/
+├── reports/
 │   └── remediation_report.json
 │
 ├── output.txt
